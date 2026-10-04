@@ -9,9 +9,9 @@
 <body>
 
     <header>
-        <!-- 1. PASTE YOUR LOGO DIRECT IMAGE LINK INSIDE SRC HERE -->
         <a href="index.html" class="logo-container">
-            <img src="images/logo.png" alt="Natural Basket Logo" class="logo-img">
+            <!-- Looks for logo.png inside your images folder on GitHub -->
+            <img src="images/logo.png" alt="Natural Basket Logo" class="logo-img" onerror="this.style.display='none'">
             <span class="logo-text">Natural Basket</span>
         </a>
         <nav>
@@ -38,12 +38,11 @@
         </div>
 
         <div class="product-grid">
-            <!-- PRODUCT 1: MILLET ENERGY BAR -->
+            <!-- TRADITIONAL SNACKS -->
             <div class="product-card" data-category="snacks">
                 <span class="badge">Snack</span>
                 <div class="product-img-wrapper">
-                    <!-- PASTE IMGBB DIRECT LINK IN SRC HERE -->
-                    <img src="https://placeholder.com" alt="Millet Energy Bar" class="product-img">
+                    <img src="images/millet-bar.jpg" alt="Millet Energy Bar" class="product-img" onerror="this.src='https://placeholder.com'">
                 </div>
                 <h3>Millet Energy Bar</h3>
                 <p>1 Bar (Organic Jaggery)</p>
@@ -51,11 +50,10 @@
                 <button class="btn-add" onclick="addToCart('Millet Energy Bar', 45.00)">Add to Basket</button>
             </div>
 
-            <!-- PRODUCT 2: ATHRASALU -->
             <div class="product-card" data-category="snacks">
                 <span class="badge">Snack</span>
                 <div class="product-img-wrapper">
-                    <img src="https://placeholder.com" alt="Handmade Athrasalu" class="product-img">
+                    <img src="images/athrasalu.jpg" alt="Handmade Athrasalu" class="product-img" onerror="this.src='https://placeholder.com'">
                 </div>
                 <h3>Handmade Athrasalu</h3>
                 <p>400g Pack (Traditional Sweet)</p>
@@ -63,11 +61,11 @@
                 <button class="btn-add" onclick="addToCart('Handmade Athrasalu', 120.00)">Add to Basket</button>
             </div>
 
-            <!-- PRODUCT 3: COW MILK -->
+            <!-- MILK PRODUCTS -->
             <div class="product-card" data-category="milk">
                 <span class="badge">Dairy</span>
                 <div class="product-img-wrapper">
-                    <img src="https://placeholder.com" alt="A2 Desi Cow Milk" class="product-img">
+                    <img src="images/milk.jpg" alt="A2 Desi Cow Milk" class="product-img" onerror="this.src='https://placeholder.com'">
                 </div>
                 <h3>A2 Desi Cow Milk</h3>
                 <p>1 Litre (Raw & Whole)</p>
@@ -75,11 +73,10 @@
                 <button class="btn-add" onclick="addToCart('A2 Desi Cow Milk', 75.00)">Add to Basket</button>
             </div>
 
-            <!-- PRODUCT 4: GHEE -->
             <div class="product-card" data-category="milk">
                 <span class="badge">Dairy</span>
                 <div class="product-img-wrapper">
-                    <img src="https://placeholder.com" alt="Pure Desi Cow Ghee" class="product-img">
+                    <img src="images/ghee.jpg" alt="Pure Desi Cow Ghee" class="product-img" onerror="this.src='https://placeholder.com'">
                 </div>
                 <h3>Pure Desi Cow Ghee</h3>
                 <p>500 ml (Traditional Bilona)</p>
@@ -87,11 +84,11 @@
                 <button class="btn-add" onclick="addToCart('Pure Desi Cow Ghee', 650.00)">Add to Basket</button>
             </div>
 
-            <!-- PRODUCT 5: TURMERIC POWDER -->
+            <!-- PREMIUM SPICES -->
             <div class="product-card" data-category="spices">
                 <span class="badge">Spice</span>
                 <div class="product-img-wrapper">
-                    <img src="https://placeholder.com" alt="Organic Turmeric Powder" class="product-img">
+                    <img src="images/turmeric.jpg" alt="Organic Turmeric Powder" class="product-img" onerror="this.src='https://placeholder.com'">
                 </div>
                 <h3>Organic Turmeric Powder</h3>
                 <p>250g Pack (High Curcumin)</p>
@@ -99,11 +96,10 @@
                 <button class="btn-add" onclick="addToCart('Organic Turmeric Powder', 90.00)">Add to Basket</button>
             </div>
 
-            <!-- PRODUCT 6: BLACK PEPPER -->
             <div class="product-card" data-category="spices">
                 <span class="badge">Spice</span>
                 <div class="product-img-wrapper">
-                    <img src="https://placeholder.com" alt="Black Pepper" class="product-img">
+                    <img src="images/pepper.jpg" alt="Black Pepper" class="product-img" onerror="this.src='https://placeholder.com'">
                 </div>
                 <h3>Black Pepper</h3>
                 <p>100g Whole Peppercorns</p>
