@@ -40,7 +40,7 @@ header {
 }
 
 .logo-container { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--white); }
-.logo-img { height: 32px; width: auto; object-fit: contain; border-radius: 6px; }
+.logo-img { height: 32px; width: auto; object-fit: contain; border-radius: 50%; }
 .logo-text { font-size: 18px; font-weight: bold; white-space: nowrap; }
 nav a { color: var(--white); text-decoration: none; margin-left: 12px; font-weight: bold; font-size: 14px; }
 .nav-basket-btn { background-color: var(--accent); padding: 5px 12px; border-radius: 20px; white-space: nowrap; }
