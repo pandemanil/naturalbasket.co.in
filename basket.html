@@ -2,17 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Your Basket | Natural Basket</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <a href="index.html" class="logo">☘️ Natural Basket</a>
+        <a href="index.html" class="logo-container">
+            <img src="images/logo.png" alt="Natural Basket Logo" class="logo-img" onerror="this.style.display='none'">
+            <span class="logo-text">Natural Basket</span>
+        </a>
         <nav>
             <a href="index.html">Back to Shop</a>
-            <a href="basket.html" class="nav-basket-btn">🛒 Basket (<span id="cart-count">0</span>)</a>
+            <a href="basket.html" class="nav-basket-btn">🛒 (<span id="cart-count">0</span>)</a>
         </nav>
     </header>
 
@@ -22,10 +25,10 @@
             <div id="basket-items"></div>
             <hr style="border: none; border-top: 1px dashed #E5E7EB; margin: 20px 0;">
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span>Delivery Charge:</span><span id="delivery-price">₹0.00</span>
+                <span>Delivery Charge:</span><span id="delivery-price" style="font-weight: bold; color: var(--accent);">Extra</span>
             </div>
             <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:20px;">
-                <span>Final Total:</span><span id="total-price">₹0.00</span>
+                <span>Subtotal Summary:</span><span id="total-price">₹0.00</span>
             </div>
             <button class="btn-add" style="margin-top:20px; background:#EF4444;" onclick="clearCart()">Empty Basket</button>
         </div>
@@ -35,7 +38,7 @@
             <form onsubmit="checkoutWhatsApp(event)">
                 <div class="form-group"><label>Full Name *</label><input type="text" id="name" required placeholder="Enter full name"></div>
                 <div class="form-group"><label>WhatsApp Mobile *</label><input type="tel" id="phone" required placeholder="10 digit number"></div>
-                <div class="form-group"><label>Delivery Address *</label><textarea id="address" rows="3" required placeholder="House No, Street, Area"></textarea></div>
+                <div class="form-group"><label>Delivery Address *</label><textarea id="address" rows="3" required placeholder="House No, Street, Area details"></textarea></div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                     <div class="form-group"><label>City *</label><input type="text" id="city" value="Hyderabad" required></div>
                     <div class="form-group"><label>Pincode *</label><input type="text" id="pincode" required placeholder="5000XX"></div>
