@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Natural Basket</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .metric-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #E5E7EB; text-align: center; }
+        .metric-card h3 { margin: 0; color: #6B7280; font-size: 14px; text-transform: uppercase; }
+        .metric-card p { margin: 10px 0 0; font-size: 28px; font-weight: bold; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="admin.html" class="logo">⚙️ Admin Dashboard Panel</a>
+        <nav>
+            <a href="index.html">View Live Site</a>
+            <a href="#" onclick="handleLogout()" style="color: #F87171;">Logout</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2 class="section-title">Business Management Metrics</h2>
+        
+        <div class="metrics-grid">
+            <div class="metric-card"><h3>Today's Orders</h3><p>12</p></div>
+            <div class="metric-card"><h3>Today's Gross Sales</h3><p>₹4,250</p></div>
+            <div class="metric-card"><h3>Pending Deliveries</h3><p>5</p></div>
+            <div class="metric-card"><h3>Low Stock Warning</h3><p>2 Products</p></div>
+        </div>
+
+        <div class="form-box">
+            <h2 class="section-title">Store Operations Management</h2>
+            <p>Welcome back! You are logged in securely. You can manage database tracking metrics and update product price catalogs directly once the live cloud worker engines are completely linked.</p>
+        </div>
+    </main>
+
+    <script>
+        // Restrict structural viewing to authorized administrators only
+        if (localStorage.getItem('nb_admin_authed') !== 'true') {
+            alert("Unauthorised session! Redirecting to login portal...");
+            window.location.href = "login.html";
+        }
+        function handleLogout() {
+            localStorage.removeItem('nb_admin_authed');
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

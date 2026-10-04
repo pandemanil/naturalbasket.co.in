@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Gateway | Natural Basket</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">☘️ Natural Basket</a>
+    </header>
+
+    <main class="container" style="max-width: 450px;">
+        <div class="form-box" style="margin-top: 60px;">
+            <h2 class="section-title" style="text-align: center;">Admin Secure Login</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required placeholder="Enter admin username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required placeholder="Enter admin password">
+                </div>
+                <button type="submit" class="btn-submit">Secure Log In</button>
+            </form>
+            <p id="login-error" style="color:red; text-align:center; display:none; margin-top:15px; font-weight:bold;">❌ Invalid Administrative Credentials!</p>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

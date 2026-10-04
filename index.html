@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natural Basket | Nature's Goodness. Delivered.</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">☘️ Natural Basket</a>
+        <nav>
+            <a href="index.html">Shop</a>
+            <a href="login.html">Admin Login</a>
+            <a href="basket.html" class="nav-basket-btn">🛒 Basket (<span id="cart-count">0</span>)</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Nature's Goodness. Delivered.</h1>
+        <p>Chemical-free produce, fresh milk, and wholesome traditional snacks—straight from the farm to your door in Hyderabad.</p>
+        <a href="#shop" class="btn-shop">Shop Fresh Items</a>
+    </section>
+
+    <main class="container" id="shop">
+        <h2 class="section-title">Explore Our Categories</h2>
+        
+        <div class="category-tabs">
+            <button class="tab-btn active" onclick="filterCategory(event, 'all')">All Products</button>
+            <button class="tab-btn" onclick="filterCategory(event, 'snacks')">Traditional Snacks</button>
+            <button class="tab-btn" onclick="filterCategory(event, 'milk')">Milk Products</button>
+            <button class="tab-btn" onclick="filterCategory(event, 'spices')">Premium Spices</button>
+        </div>
+
+        <div class="product-grid">
+            <!-- TRADITIONAL SNACKS -->
+            <div class="product-card" data-category="snacks">
+                <span class="badge">Snack</span>
+                <h3>Millet Energy Bar</h3>
+                <p>1 Bar (Organic Jaggery)</p>
+                <div class="product-price">₹45.00</div>
+                <button class="btn-add" onclick="addToCart('Millet Energy Bar', 45.00)">Add to Basket</button>
+            </div>
+
+            <div class="product-card" data-category="snacks">
+                <span class="badge">Snack</span>
+                <h3>Handmade Athrasalu</h3>
+                <p>400g Pack (Traditional Sweet)</p>
+                <div class="product-price">₹120.00</div>
+                <button class="btn-add" onclick="addToCart('Handmade Athrasalu', 120.00)">Add to Basket</button>
+            </div>
+
+            <!-- MILK PRODUCTS -->
+            <div class="product-card" data-category="milk">
+                <span class="badge">Dairy</span>
+                <h3>A2 Desi Cow Milk</h3>
+                <p>1 Litre (Raw & Whole)</p>
+                <div class="product-price">₹75.00</div>
+                <button class="btn-add" onclick="addToCart('A2 Desi Cow Milk', 75.00)">Add to Basket</button>
+            </div>
+
+            <div class="product-card" data-category="milk">
+                <span class="badge">Dairy</span>
+                <h3>Pure Desi Cow Ghee</h3>
+                <p>500 ml (Traditional Bilona)</p>
+                <div class="product-price">₹650.00</div>
+                <button class="btn-add" onclick="addToCart('Pure Desi Cow Ghee', 650.00)">Add to Basket</button>
+            </div>
+
+            <!-- PREMIUM SPICES -->
+            <div class="product-card" data-category="spices">
+                <span class="badge">Spice</span>
+                <h3>Organic Turmeric Powder</h3>
+                <p>250g Pack (High Curcumin)</p>
+                <div class="product-price">₹90.00</div>
+                <button class="btn-add" onclick="addToCart('Organic Turmeric Powder', 90.00)">Add to Basket</button>
+            </div>
+
+            <div class="product-card" data-category="spices">
+                <span class="badge">Spice</span>
+                <h3>Black Pepper</h3>
+                <p>100g Whole Peppercorns</p>
+                <div class="product-price">₹150.00</div>
+                <button class="btn-add" onclick="addToCart('Black Pepper', 150.00)">Add to Basket</button>
+            </div>
+        </div>
+    </main>
+
+    <section class="about-section">
+        <div class="about-container">
+            <div class="about-card">
+                <h2>About Natural Basket</h2>
+                <p>Natural Basket is a farm-to-home delivery service that brings fresh produce and wholesome food products directly to customers. We focus strictly on chemical-free agriculture, quality, and peak freshness.</p>
+            </div>
+            <div class="about-card highlight">
+                <h2>Our Vision</h2>
+                <p>To build a healthier community by making natural, farm-fresh products accessible to every home while promoting sustainability and the well-being of our local farmers.</p>
+            </div>
+            <div class="about-card">
+                <h2>Our Promise</h2>
+                <ul style="padding-left: 20px; line-height: 2;">
+                    <li>🌾 Farm-to-home freshness</li>
+                    <li>🔍 100% Transparent sourcing</li>
+                    <li>❌ Zero chemical alternatives</li>
+                    <li>🚜 Direct support for local farmers</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 Natural Basket. Nature's Goodness. Delivered. Serving Hyderabad and surrounding regions.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

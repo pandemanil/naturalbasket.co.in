@@ -1,0 +1,67 @@
+:root {
+    --primary: #38761D;    /* Deep Forest Green */
+    --secondary: #FEFCE8;  /* Light Cream */
+    --accent: #B45F06;     /* Earthy Brown/Gold */
+    --dark: #1F2937;
+    --white: #FFFFFF;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #FAFAFA;
+    color: var(--dark);
+    scroll-behavior: smooth;
+}
+
+header {
+    background-color: var(--primary);
+    color: var(--white);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo { font-size: 24px; font-weight: bold; text-decoration: none; color: var(--white); }
+nav a { color: var(--white); text-decoration: none; margin-left: 20px; font-weight: bold; }
+.nav-basket-btn { background-color: var(--accent); padding: 6px 14px; border-radius: 20px; }
+
+.hero { background-color: var(--secondary); padding: 60px 20px; text-align: center; }
+.hero h1 { color: var(--primary); font-size: 38px; margin: 0 0 10px 0; }
+.hero p { color: var(--dark); font-size: 18px; max-width: 700px; margin: 0 auto 25px auto; }
+.btn-shop { background-color: var(--accent); color: var(--white); padding: 12px 30px; text-decoration: none; font-weight: bold; border-radius: 25px; }
+
+.container { max-width: 1200px; margin: 40px auto; padding: 0 20px; box-sizing: border-box; }
+.section-title { color: var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 10px; font-size: 26px; }
+
+.category-tabs { display: flex; justify-content: center; gap: 10px; margin: 30px 0; flex-wrap: wrap; }
+.tab-btn { background: white; border: 1px solid #E5E7EB; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+.tab-btn.active, .tab-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+.product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
+.product-card { background: var(--white); border: 1px solid #E5E7EB; border-radius: 16px; padding: 40px 20px 20px; text-align: center; position: relative; }
+.badge { position: absolute; top: 15px; left: 15px; background: var(--secondary); color: var(--accent); font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 12px; border: 1px solid #FEF08A; }
+.product-price { color: var(--accent); font-weight: bold; font-size: 22px; margin: 15px 0; }
+
+.btn-add, .btn-submit { background-color: var(--primary); color: var(--white); border: none; padding: 10px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
+.btn-add:hover { background-color: #2b5715; }
+
+.grid-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+.form-box { background: var(--white); padding: 30px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #E5E7EB; box-sizing: border-box; }
+.form-group { margin-bottom: 15px; text-align: left; }
+.form-group label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 5px; color: #4B5563; }
+.form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #D1D5DB; border-radius: 8px; box-sizing: border-box; }
+.btn-whatsapp { background-color: #25D366; color: var(--white); border: none; width: 100%; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 6px rgba(37,211,102,0.15); }
+.btn-whatsapp:hover { background-color: #128C7E; }
+
+.about-section { background-color: var(--secondary); padding: 60px 20px; margin-top: 60px; }
+.about-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+.about-card { background: var(--white); padding: 30px; border-radius: 16px; border: 1px solid #E5E7EB; }
+.about-card.highlight { border: 2px solid var(--primary); background-color: #F0FDF4; }
+.about-card h2 { color: var(--primary); margin-top: 0; }
+
+footer { background-color: var(--dark); color: var(--white); text-align: center; padding: 20px; font-size: 14px; }
