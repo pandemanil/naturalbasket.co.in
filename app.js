@@ -23,7 +23,7 @@ function addToCart(name, price) {
     alert(`${name} successfully added to basket!`);
 }
 
-// Increase Item Quantity (+ Button)
+// Increase Item Quantity (+ Button Logic)
 function increaseQty(name) {
     const item = cart.find(i => i.name === name);
     if (item) {
@@ -33,12 +33,11 @@ function increaseQty(name) {
     }
 }
 
-// Decrease Item Quantity (- Button)
+// Decrease Item Quantity (- Button Logic)
 function decreaseQty(name) {
     const item = cart.find(i => i.name === name);
     if (item) {
         item.qty -= 1;
-        // If quantity drops to 0, remove the item completely from basket
         if (item.qty <= 0) {
             cart = cart.filter(i => i.name !== name);
         }
@@ -74,10 +73,10 @@ function renderBasketPage() {
                 <div>
                     <strong>${item.name}</strong><br>
                     <small style="color:#6B7280;">₹${item.price.toFixed(2)} each</small>
-                    <div style="margin-top: 5px; display: flex; align-items: center; gap: 8px;">
-                        <button onclick="decreaseQty('${item.name}')" style="background:#E5E7EB; border:none; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">-</button>
-                        <span>${item.qty}</span>
-                        <button onclick="increaseQty('${item.name}')" style="background:#E5E7EB; border:none; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">+</button>
+                    <div style="margin-top: 6px; display: flex; align-items: center; gap: 8px;">
+                        <button onclick="decreaseQty('${item.name}')" style="background:#E5E7EB; border:none; padding:3px 10px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px;">-</button>
+                        <span style="font-weight:bold;">${item.qty}</span>
+                        <button onclick="increaseQty('${item.name}')" style="background:#E5E7EB; border:none; padding:3px 10px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px;">+</button>
                     </div>
                 </div>
                 <strong>₹${itemCost.toFixed(2)}</strong>
@@ -85,7 +84,6 @@ function renderBasketPage() {
         `;
     });
     
-    // Updated to mention delivery is extra
     document.getElementById('delivery-price').innerText = "Extra";
     document.getElementById('total-price').innerText = `₹${subtotal.toFixed(2)}`;
 }
@@ -126,10 +124,10 @@ function checkoutWhatsApp(event) {
     
     let orderMsg = `☘️ *NEW ORDER - NATURAL BASKET* ☘️\n\n`;
     orderMsg += `*Customer:* ${name}\n*Mobile:* ${phone}\n\n`;
-    orderMsg += `--- *Items* ---\n${itemListingText}\n`;
+    orderMsg += `--- *Items Ordered* ---\n${itemListingText}\n`;
     orderMsg += `*Subtotal:* ₹${subtotal.toFixed(2)}\n`;
-    orderMsg += `*Delivery Charge:* Extra (Will be confirmed on call/chat)\n`;
-    orderMsg += `*Total Amount:* ₹${subtotal.toFixed(2)} + Delivery\n\n`;
+    orderMsg += `*Delivery Charge:* Extra (Will be confirmed on chat)\n`;
+    orderMsg += `*Total Bill:* ₹${subtotal.toFixed(2)} + Delivery Extra\n\n`;
     orderMsg += `*Shipping Address:* ${address}, ${city} - ${pincode}`;
     
     const shopPhone = "917993251579";
@@ -152,5 +150,4 @@ function handleLogin(event) {
     }
 }
 
-// Initial Boot Sync Action
 updateCartCounter();
