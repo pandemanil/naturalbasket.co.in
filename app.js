@@ -23,6 +23,30 @@ function addToCart(name, price) {
     alert(`${name} successfully added to basket!`);
 }
 
+// Increase Item Quantity (+ Button)
+function increaseQty(name) {
+    const item = cart.find(i => i.name === name);
+    if (item) {
+        item.qty += 1;
+        saveCart();
+        if (typeof renderBasketPage === "function") renderBasketPage();
+    }
+}
+
+// Decrease Item Quantity (- Button)
+function decreaseQty(name) {
+    const item = cart.find(i => i.name === name);
+    if (item) {
+        item.qty -= 1;
+        // If quantity drops to 0, remove the item completely from basket
+        if (item.qty <= 0) {
+            cart = cart.filter(i => i.name !== name);
+        }
+        saveCart();
+        if (typeof renderBasketPage === "function") renderBasketPage();
+    }
+}
+
 function clearCart() {
     cart = [];
     saveCart();
@@ -36,7 +60,7 @@ function renderBasketPage() {
     container.innerHTML = "";
     if (cart.length === 0) {
         container.innerHTML = "<p style='color:#6B7280;'>Your basket is completely empty.</p>";
-        document.getElementById('delivery-price').innerText = "₹0.00";
+        document.getElementById('delivery-price').innerText = "Extra";
         document.getElementById('total-price').innerText = "₹0.00";
         return;
     }
@@ -46,19 +70,24 @@ function renderBasketPage() {
         const itemCost = item.price * item.qty;
         subtotal += itemCost;
         container.innerHTML += `
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid #F3F4F6; padding-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #F3F4F6; padding-bottom:8px;">
                 <div>
                     <strong>${item.name}</strong><br>
-                    <small style="color:#6B7280;">₹${item.price} x ${item.qty}</small>
+                    <small style="color:#6B7280;">₹${item.price.toFixed(2)} each</small>
+                    <div style="margin-top: 5px; display: flex; align-items: center; gap: 8px;">
+                        <button onclick="decreaseQty('${item.name}')" style="background:#E5E7EB; border:none; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">-</button>
+                        <span>${item.qty}</span>
+                        <button onclick="increaseQty('${item.name}')" style="background:#E5E7EB; border:none; padding:2px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">+</button>
+                    </div>
                 </div>
                 <strong>₹${itemCost.toFixed(2)}</strong>
             </div>
         `;
     });
     
-    const delivery = 50;
-    document.getElementById('delivery-price').innerText = `₹${delivery.toFixed(2)}`;
-    document.getElementById('total-price').innerText = `₹${(subtotal + delivery).toFixed(2)}`;
+    // Updated to mention delivery is extra
+    document.getElementById('delivery-price').innerText = "Extra";
+    document.getElementById('total-price').innerText = `₹${subtotal.toFixed(2)}`;
 }
 
 function filterCategory(event, categorySelection) {
@@ -92,16 +121,21 @@ function checkoutWhatsApp(event) {
     cart.forEach((item, index) => {
         const cost = item.price * item.qty;
         subtotal += cost;
-        itemListingText += `${index + 1}. ${item.name} x${item.qty} - ₹${cost}\n`;
+        itemListingText += `${index + 1}. ${item.name} x${item.qty} - ₹${cost.toFixed(2)}\n`;
     });
     
     let orderMsg = `☘️ *NEW ORDER - NATURAL BASKET* ☘️\n\n`;
     orderMsg += `*Customer:* ${name}\n*Mobile:* ${phone}\n\n`;
     orderMsg += `--- *Items* ---\n${itemListingText}\n`;
-    orderMsg += `*Total cost:* ₹${(subtotal + 50).toFixed(2)} (inc. ₹50 delivery)\n\n`;
+    orderMsg += `*Subtotal:* ₹${subtotal.toFixed(2)}\n`;
+    orderMsg += `*Delivery Charge:* Extra (Will be confirmed on call/chat)\n`;
+    orderMsg += `*Total Amount:* ₹${subtotal.toFixed(2)} + Delivery\n\n`;
     orderMsg += `*Shipping Address:* ${address}, ${city} - ${pincode}`;
     
-    window.open(`https://whatsapp.com{encodeURIComponent(orderMsg)}`, '_blank');
+    const shopPhone = "917993251579";
+    const finalWhatsAppUrl = `https://whatsapp.com{shopPhone}&text=${encodeURIComponent(orderMsg)}`;
+    
+    window.open(finalWhatsAppUrl, '_blank');
 }
 
 function handleLogin(event) {
