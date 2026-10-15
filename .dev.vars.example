@@ -1,0 +1,11 @@
+# Copy to .dev.vars for local development ONLY. Never commit the real file.
+# Production values are set in Cloudflare Pages > Settings > Environment variables
+# (mark ADMIN_PASSWORD_HASH and SESSION_SECRET as "Encrypted").
+ADMIN_USERNAME=admin
+# PBKDF2-SHA256 hash in the form: pbkdf2$<iterations>$<saltBase64>$<hashBase64>
+# Generate with: npm run hash-password -- "your-strong-password"
+ADMIN_PASSWORD_HASH=
+# At least 32 random characters. Generate with: openssl rand -base64 48
+SESSION_SECRET=
+# Public business WhatsApp number in international format, digits only (no +)
+WHATSAPP_NUMBER=917993251579
