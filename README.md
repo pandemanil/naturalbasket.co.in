@@ -58,17 +58,24 @@ Locally, the same names go in `.dev.vars` (already git-ignored).
 
 Store settings (delivery charge, minimum order, accepting orders) are changed in **/admin → Settings**. They start at ₹0 (delivery confirmed on chat, no minimum).
 
-## 4. Deploy from GitHub (automatic)
+## 4. Deploy from GitHub (automatic, Cloudflare Pages)
 
-1. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git** and choose this repository, branch `main`.
+This project is a **Cloudflare Pages** site: a static React build in `dist/` plus Pages Functions in `functions/`. It is **not** a Worker, so there is no deploy command.
+
+1. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**, choose this repository and branch `main`.
+   If you previously created this project as a **Worker** (or a Workers Builds project), delete it and recreate it as Pages. A Worker cannot serve these Functions and `_headers`/`_redirects`.
 2. Build settings:
-   - Framework preset: **None** (or Vite)
+   - Framework preset: **None**
    - Build command: `npm run build`
    - Build output directory: `dist`
-3. Under **Settings → Functions → D1 database bindings**, add binding name `DB` → `natural-basket-db`.
-4. Under **Settings → Functions → R2 bucket bindings**, add binding name `IMAGES` → `natural-basket-images`.
-5. Add the environment variables from section 3.
-6. Save and deploy. Every push to `main` now redeploys automatically.
+   - **Deploy command: leave empty.** Pages deploys the output automatically. Remove any `npx wrangler deploy` or `npx wrangler preview` value.
+   - Root directory: `/` (leave blank)
+3. **Settings → Environment variables** (Production and Preview): add `NODE_VERSION` = `20`, plus the variables from section 3.
+4. **Settings → Functions → D1 database bindings**: variable name `DB` → database `natural-basket-db`.
+5. **Settings → Functions → R2 bucket bindings**: variable name `IMAGES` → bucket `natural-basket-images`.
+6. Save and deploy. Pushes to `main` deploy to production; other branches get preview deployments.
+
+To deploy from your computer instead: `npm run deploy` (requires `npx wrangler login` first).
 
 Product price and image changes made in /admin do **not** trigger a deploy: they are stored in D1 and R2 and appear on the storefront immediately.
 

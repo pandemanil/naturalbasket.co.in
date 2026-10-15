@@ -1,3 +1,5 @@
+# Cloudflare PAGES project (static Vite build in dist/ + Pages Functions in functions/).
+# Deploys run from Git via the Pages dashboard (no deploy command). Do NOT create this as a Worker.
 name = "natural-basket"
 compatibility_date = "2024-10-22"
 pages_build_output_dir = "dist"
@@ -14,5 +16,6 @@ migrations_dir = "migrations"
 binding = "IMAGES"
 bucket_name = "natural-basket-images"
 
+# For Pages, the dashboard values (Settings > Environment variables) are authoritative.
 [vars]
 WHATSAPP_NUMBER = "917993251579"

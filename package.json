@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b",
+    "typecheck": "tsc --noEmit",
+    "deploy": "npm run build && wrangler pages deploy dist --project-name=natural-basket",
     "db:migrate:local": "wrangler d1 migrations apply natural-basket-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply natural-basket-db --remote",
     "pages:dev": "wrangler pages dev dist --d1=DB --r2=IMAGES",
