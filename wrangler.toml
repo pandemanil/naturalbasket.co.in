@@ -17,7 +17,7 @@ run_worker_first = true
 [[d1_databases]]
 binding = "DB"
 database_name = "natural-basket-db"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "8a38dd28-3db2-4858-80de-4760bde0af00"
 migrations_dir = "migrations"
 
 # R2 bucket for product images. Create with `npx wrangler r2 bucket create natural-basket-images`.
