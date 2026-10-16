@@ -1,0 +1,31 @@
+# One Cloudflare Worker: serves the API (/api/*) and the React build (dist/).
+# Deployed from GitHub with Workers Builds: build = `npm run build`, deploy = `npx wrangler deploy`.
+name = "natural-basket"
+main = "src/worker.ts"
+compatibility_date = "2024-10-22"
+
+# Static React build. Unknown paths fall back to index.html so /basket and /admin/* load.
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+# Send every request through the Worker first, so API routes and security headers always run.
+run_worker_first = true
+
+# D1 database. Replace the placeholder with the database_id printed by
+# `npx wrangler d1 create natural-basket-db`. Deploys fail until this is real.
+[[d1_databases]]
+binding = "DB"
+database_name = "natural-basket-db"
+database_id = "8a38dd28-3db2-4858-80de-4760bde0af00"
+migrations_dir = "migrations"
+
+# R2 bucket for product images. Create with `npx wrangler r2 bucket create natural-basket-images`.
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "natural-basket-images"
+
+# Non-secret settings. Secrets (ADMIN_PASSWORD_HASH, SESSION_SECRET) are never stored here.
+[vars]
+ADMIN_USERNAME = "admin"
+WHATSAPP_NUMBER = "917993251579"
