@@ -99,7 +99,7 @@ Product price and image changes made in /admin do **not** trigger a deploy: they
 
 ## 5. Connect your custom domain
 
-1. Worker → **Settings → Domains & Routes → Add → Custom domain**, enter your domain (e.g. `naturalbasket.live`).
+1. Worker → **Settings → Domains & Routes → Add → Custom domain**, enter your domain (here: `naturalbasket.co.in`).
 2. If the domain's DNS is already on Cloudflare, accept the suggested CNAME record. If it is elsewhere, add the CNAME record Cloudflare shows at your DNS provider.
 3. Wait for the certificate to become active (usually minutes), then open https://your-domain.
 4. Update `public/sitemap.xml` and `public/robots.txt` if you use a different domain, then push.
