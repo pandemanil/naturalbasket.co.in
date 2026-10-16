@@ -1,6 +1,6 @@
 # One Cloudflare Worker: serves the API (/api/*) and the React build (dist/).
 # Deployed from GitHub with Workers Builds: build = `npm run build`, deploy = `npx wrangler deploy`.
-name = "natural-basket"
+name = "naturalbasket-co-in"
 main = "src/worker.ts"
 compatibility_date = "2024-10-22"
 

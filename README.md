@@ -45,7 +45,7 @@ Create an admin password hash (use a password of at least 12 characters):
 npm run hash-password -- "your-long-admin-password"
 ```
 
-Set production values on the Worker: **Cloudflare → Workers & Pages → natural-basket → Settings → Variables and Secrets**. Use **Encrypted** for the two secrets:
+Set production values on the Worker: **Cloudflare → Workers & Pages → naturalbasket-co-in → Settings → Variables and Secrets**. Use **Encrypted** for the two secrets:
 
 | Name | Type | Value |
 |---|---|---|
@@ -62,7 +62,7 @@ Store settings (delivery charge, minimum order, accepting orders) are changed in
 
 This project deploys as **one Cloudflare Worker** (`src/worker.ts`). The Worker serves the API under `/api/*` and the React build from `dist/`. It is not a Pages project.
 
-Dashboard settings (Workers & Pages → natural-basket → Settings → Builds):
+Dashboard settings (Workers & Pages → naturalbasket-co-in → Settings → Builds):
 
 1. Connect the repository and set the production branch to `main`. Root directory: `/`.
 2. **Build command:** `npm run build`
@@ -91,7 +91,7 @@ Product price and image changes made in /admin do **not** trigger a deploy: they
 
 ### How to check a deployment
 
-1. The build log ends by deploying the `natural-basket` Worker and printing its URL, usually `https://natural-basket.<your-subdomain>.workers.dev`. If it stops at a D1 or binding error, fix the `wrangler.toml` value named in the error.
+1. The build log ends by deploying the `naturalbasket-co-in` Worker and printing its URL, usually `https://naturalbasket-co-in.<your-subdomain>.workers.dev`. If it stops at a D1 or binding error, fix the `wrangler.toml` value named in the error.
 2. `https://<worker-url>/` shows the shop with products.
 3. `https://<worker-url>/api/products` returns JSON with a `products` list.
 4. `https://<worker-url>/api/admin/products` returns `401` when logged out.
