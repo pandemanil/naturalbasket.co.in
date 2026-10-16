@@ -93,7 +93,7 @@ export async function handleAdmin(env: Env, request: Request, path: string[]): P
 
   if (a === 'products' && !b) {
     if (method === 'GET') return json({ products: await listAdminProducts(env, new URL(request.url)) });
-    if (method === 'POST') return json({ product: await createProduct(env, await readJson(request)) }, 201);
+    if (method === 'POST') return json({ product: await createProduct(env, await readJson<Record<string, unknown>>(request)) }, 201);
   }
   if (a === 'products' && b) {
     const id = parseId(b);
@@ -114,7 +114,7 @@ export async function handleAdmin(env: Env, request: Request, path: string[]): P
     }
     if (!c) {
       if (method === 'GET') return json({ product: await getAdminProduct(env, id) });
-      if (method === 'PUT') return json({ product: await updateProduct(env, id, await readJson(request)) });
+      if (method === 'PUT') return json({ product: await updateProduct(env, id, await readJson<Record<string, unknown>>(request)) });
       if (method === 'DELETE') {
         const key = await deleteProduct(env, id);
         await deleteImage(env, key);
@@ -141,7 +141,7 @@ export async function handleAdmin(env: Env, request: Request, path: string[]): P
 
   if (a === 'settings') {
     if (method === 'GET') return json({ settings: await getSettings(env) });
-    if (method === 'PUT') return json({ settings: await putSettings(env, await readJson(request)) });
+    if (method === 'PUT') return json({ settings: await putSettings(env, await readJson<Record<string, unknown>>(request)) });
   }
 
   throw new HttpError(404, 'Not found.');

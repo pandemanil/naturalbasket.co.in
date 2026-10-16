@@ -12,10 +12,13 @@ function b64urlEncode(bytes: ArrayBuffer | Uint8Array): string {
   return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-function b64urlDecode(str: string): Uint8Array {
+/** Returns an ArrayBuffer-backed array so it is accepted by crypto.subtle (TypeScript 5.7+ typing). */
+function b64urlDecode(str: string): Uint8Array<ArrayBuffer> {
   const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
   const bin = atob(b64);
-  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
+  const out = new Uint8Array(new ArrayBuffer(bin.length));
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
 }
 
 function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
@@ -36,7 +39,7 @@ export async function verifyPassword(password: string, stored: string): Promise<
   const iterations = Number(parts[1]);
   if (!Number.isInteger(iterations) || iterations < 100_000) return false;
   const salt = b64urlDecode(parts[2].replace(/\+/g, '-').replace(/\//g, '_'));
-  const expected = Uint8Array.from(atob(parts[3]), (c) => c.charCodeAt(0));
+  const expected = b64urlDecode(parts[3]);
   const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
   const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations, hash: 'SHA-256' }, key, 256);
   return constantTimeEqual(new Uint8Array(bits), expected);

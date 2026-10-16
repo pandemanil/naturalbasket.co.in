@@ -1,3 +1,0 @@
-# Single-page app fallback so /basket and /admin/* deep links load.
-# /api/* is served by Pages Functions and is matched before this rule.
-/*    /index.html   200

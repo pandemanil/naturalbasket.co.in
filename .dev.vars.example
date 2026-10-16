@@ -1,6 +1,6 @@
 # Copy to .dev.vars for local development ONLY. Never commit the real file.
-# Production values are set in Cloudflare Pages > Settings > Environment variables
-# (mark ADMIN_PASSWORD_HASH and SESSION_SECRET as "Encrypted").
+# Production values are set on the Worker: Settings > Variables and Secrets
+# (store ADMIN_PASSWORD_HASH and SESSION_SECRET as encrypted secrets).
 ADMIN_USERNAME=admin
 # PBKDF2-SHA256 hash in the form: pbkdf2$<iterations>$<saltBase64>$<hashBase64>
 # Generate with: npm run hash-password -- "your-strong-password"

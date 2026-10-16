@@ -1,7 +1,7 @@
 # Natural Basket
 
 Farm-to-home e-commerce for Natural Basket (Hyderabad).
-React + Vite + TypeScript storefront, Cloudflare Pages Functions API, Cloudflare D1 database, Cloudflare R2 image storage.
+React + Vite + TypeScript storefront and API, deployed as one Cloudflare Worker, with a Cloudflare D1 database and R2 image storage.
 
 - Storefront: `/` (shop), `/basket` (basket + order request)
 - Admin: `/admin/login` → `/admin` (dashboard, products, orders, settings)
@@ -13,10 +13,10 @@ React + Vite + TypeScript storefront, Cloudflare Pages Functions API, Cloudflare
 3. Copy `.dev.vars.example` to `.dev.vars` and fill in the values (see section 3).
 4. Create the local database and seed it: `npm run db:migrate:local`
 5. Build the site once: `npm run build`
-6. Start the full app (storefront + API): `npx wrangler pages dev dist --d1=DB --r2=IMAGES --compatibility-date=2024-10-22`
-   Then open http://localhost:8788.
+6. Start the full app (storefront + API, using local D1 and R2): `npm run dev:worker`
+   Then open http://localhost:8787.
 
-For UI-only development with hot reload, run `npm run dev` (http://localhost:5173). The API proxy expects the Wrangler server on port 8788.
+For UI-only development with hot reload, run `npm run dev` (http://localhost:5173). The API proxy expects the Wrangler server on port 8787.
 
 ## 2. Cloudflare resources (one time, in the dashboard or with Wrangler)
 
@@ -45,11 +45,11 @@ Create an admin password hash (use a password of at least 12 characters):
 npm run hash-password -- "your-long-admin-password"
 ```
 
-Set production values in **Cloudflare Pages → your project → Settings → Environment variables** (Production and Preview):
+Set production values on the Worker: **Cloudflare → Workers & Pages → natural-basket → Settings → Variables and Secrets**. Use **Encrypted** for the two secrets:
 
 | Name | Type | Value |
 |---|---|---|
-| `ADMIN_USERNAME` | Plain text | Your admin username |
+| `ADMIN_USERNAME` | Plain text | Already set to `admin` in `wrangler.toml`. Change it there if you want a different username. |
 | `ADMIN_PASSWORD_HASH` | **Encrypted** | Output of `npm run hash-password` |
 | `SESSION_SECRET` | **Encrypted** | Output of `openssl rand -base64 48` |
 | `WHATSAPP_NUMBER` | Plain text | Business number, digits only, with country code, e.g. `917993251579` |
@@ -58,30 +58,48 @@ Locally, the same names go in `.dev.vars` (already git-ignored).
 
 Store settings (delivery charge, minimum order, accepting orders) are changed in **/admin → Settings**. They start at ₹0 (delivery confirmed on chat, no minimum).
 
-## 4. Deploy from GitHub (automatic, Cloudflare Pages)
+## 4. Deploy from GitHub (Cloudflare Workers Builds)
 
-This project is a **Cloudflare Pages** site: a static React build in `dist/` plus Pages Functions in `functions/`. It is **not** a Worker, so there is no deploy command.
+This project deploys as **one Cloudflare Worker** (`src/worker.ts`). The Worker serves the API under `/api/*` and the React build from `dist/`. It is not a Pages project.
 
-1. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git**, choose this repository and branch `main`.
-   If you previously created this project as a **Worker** (or a Workers Builds project), delete it and recreate it as Pages. A Worker cannot serve these Functions and `_headers`/`_redirects`.
-2. Build settings:
-   - Framework preset: **None**
-   - Build command: `npm run build`
-   - Build output directory: `dist`
-   - **Deploy command: leave empty.** Pages deploys the output automatically. Remove any `npx wrangler deploy` or `npx wrangler preview` value.
-   - Root directory: `/` (leave blank)
-3. **Settings → Environment variables** (Production and Preview): add `NODE_VERSION` = `20`, plus the variables from section 3.
-4. **Settings → Functions → D1 database bindings**: variable name `DB` → database `natural-basket-db`.
-5. **Settings → Functions → R2 bucket bindings**: variable name `IMAGES` → bucket `natural-basket-images`.
-6. Save and deploy. Pushes to `main` deploy to production; other branches get preview deployments.
+Dashboard settings (Workers & Pages → natural-basket → Settings → Builds):
 
-To deploy from your computer instead: `npm run deploy` (requires `npx wrangler login` first).
+1. Connect the repository and set the production branch to `main`. Root directory: `/`.
+2. **Build command:** `npm run build`
+3. **Deploy command:** `npx wrangler deploy`
+4. **Non-production branch deploy command** (only if this field is shown): `npx wrangler versions upload`. Never use `wrangler preview`; it is deprecated and causes the build error.
+5. **Build variables:** `NODE_VERSION` = `20`.
+
+Bindings come from `wrangler.toml`, so you do not add them in the dashboard. The D1 `database_id` in `wrangler.toml` must be the real ID first.
+
+Before the first deploy, run once from your computer:
+
+```bash
+npx wrangler login
+npx wrangler d1 create natural-basket-db        # copy database_id into wrangler.toml
+npx wrangler r2 bucket create natural-basket-images
+npm run db:migrate:remote                       # schema + starter catalogue
+npx wrangler secret put ADMIN_PASSWORD_HASH     # paste output of npm run hash-password
+npx wrangler secret put SESSION_SECRET          # paste output of openssl rand -base64 48
+```
+
+Deploys do **not** run migrations. Run `db:migrate:remote` yourself whenever a new migration file is added.
+
+Push to `main` to deploy production. Pushes to other branches get preview versions.
 
 Product price and image changes made in /admin do **not** trigger a deploy: they are stored in D1 and R2 and appear on the storefront immediately.
 
+### How to check a deployment
+
+1. The build log ends by deploying the `natural-basket` Worker and printing its URL, usually `https://natural-basket.<your-subdomain>.workers.dev`. If it stops at a D1 or binding error, fix the `wrangler.toml` value named in the error.
+2. `https://<worker-url>/` shows the shop with products.
+3. `https://<worker-url>/api/products` returns JSON with a `products` list.
+4. `https://<worker-url>/api/admin/products` returns `401` when logged out.
+5. `https://<worker-url>/admin/login` shows the admin sign-in page.
+
 ## 5. Connect your custom domain
 
-1. Pages project → **Custom domains → Set up a custom domain**, enter your domain (e.g. `naturalbasket.live`).
+1. Worker → **Settings → Domains & Routes → Add → Custom domain**, enter your domain (e.g. `naturalbasket.live`).
 2. If the domain's DNS is already on Cloudflare, accept the suggested CNAME record. If it is elsewhere, add the CNAME record Cloudflare shows at your DNS provider.
 3. Wait for the certificate to become active (usually minutes), then open https://your-domain.
 4. Update `public/sitemap.xml` and `public/robots.txt` if you use a different domain, then push.
@@ -98,7 +116,7 @@ Product price and image changes made in /admin do **not** trigger a deploy: they
 - Duplicate submissions are blocked with a per-checkout idempotency key (a double tap returns the same order).
 - Image uploads are checked by their real file signature (JPEG/PNG/WebP only, 2 MB maximum), not the browser-supplied type. Uploaded files are stored under random names.
 - Only product images are publicly readable from R2; the admin area is marked `noindex`.
-- Security headers (CSP, frame denial, HSTS, Permissions-Policy) are in `public/_headers`.
+- Security headers (CSP, frame denial, HSTS, Permissions-Policy) are set in `src/worker.ts` on every response.
 
 ## 7. Order and payment status (important)
 
@@ -113,7 +131,7 @@ Product price and image changes made in /admin do **not** trigger a deploy: they
 - [ ] A strong, unique admin password (12+ characters); you know it, it is not written in any file.
 - [ ] Cloudflare **Rate Limiting** rule on `/api/orders` and `/api/admin/login` (e.g. 20 requests/minute per IP). The app throttles logins itself, but edge rules add protection.
 - [ ] Cloudflare **Bot Fight Mode** or WAF managed rules enabled.
-- [ ] HTTPS enforced (on by default for Pages).
+- [ ] HTTPS enforced (on by default for Workers custom domains).
 - [ ] Only the business WhatsApp number is in `WHATSAPP_NUMBER`.
 - [ ] Logged out of /admin on shared computers.
 - [ ] Database backups: export regularly with `npx wrangler d1 export natural-basket-db --remote --output backup.sql` (keep the file out of Git).

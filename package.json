@@ -5,13 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:worker": "npm run build && wrangler dev",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "deploy": "npm run build && wrangler pages deploy dist --project-name=natural-basket",
+    "deploy": "npm run build && wrangler deploy",
     "db:migrate:local": "wrangler d1 migrations apply natural-basket-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply natural-basket-db --remote",
-    "pages:dev": "wrangler pages dev dist --d1=DB --r2=IMAGES",
     "hash-password": "node scripts/hash-password.mjs"
   },
   "dependencies": {
