@@ -28,7 +28,7 @@ export default function AdminLogin() {
   return (
     <div className="admin-login">
       <form className="panel login-panel" onSubmit={submit}>
-        <img src="/images/logo.webp" alt="Natural Basket" width={64} height={64} />
+        <img src="/images/logo.webp" alt="Natural Basket" width={150} height={104} />
         <h1>Admin sign in</h1>
         <div className="form-group">
           <label htmlFor="username">Username</label>

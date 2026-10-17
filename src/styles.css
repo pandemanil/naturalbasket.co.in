@@ -45,7 +45,7 @@ a { color: var(--primary); }
 }
 .site-header .brand { color: var(--white); }
 .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 1.1rem; }
-.brand img { width: 44px; height: 44px; object-fit: contain; border-radius: 50%; background: var(--white); }
+.brand img { height: 48px; width: auto; max-width: 150px; padding: 4px 6px; object-fit: contain; border-radius: 10px; background: var(--white); }
 .site-header nav { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .site-header nav a { color: var(--white); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
 .site-header nav a.active { text-decoration: underline; }
@@ -180,6 +180,8 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 .site-footer { background: #1F2937; color: var(--white); margin-top: 40px; }
 .about, .contact { max-width: 1200px; margin: 0 auto; padding: 30px 16px; }
 .about { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.about-poster { grid-column: 1 / -1; margin: 0; }
+.about-poster img { display: block; width: 100%; max-width: 720px; height: auto; margin: 0 auto; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 .about-card { background: var(--white); color: var(--ink); padding: 20px; border-radius: var(--radius); border: 1px solid var(--line); }
 .about-card h2 { color: var(--primary); }
 .about-card.highlight { border: 2px solid var(--primary); background: #F0FDF4; }
@@ -190,7 +192,7 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 /* ---------- Admin ---------- */
 .admin-login { min-height: 100vh; display: grid; place-items: center; padding: 20px; background: var(--bg); }
 .login-panel { width: 100%; max-width: 380px; text-align: center; }
-.login-panel img { margin: 0 auto 8px; border-radius: 50%; }
+.login-panel img { margin: 0 auto 8px; width: 150px; height: auto; border-radius: 10px; }
 .login-panel .form-group { text-align: left; }
 .admin-loading { padding: 40px; text-align: center; }
 .admin-shell { min-height: 100vh; background: #F8FAF5; }

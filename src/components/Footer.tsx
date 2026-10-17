@@ -2,6 +2,9 @@ export default function Footer() {
   return (
     <footer className="site-footer">
       <section id="about" className="about">
+        <figure className="about-poster">
+          <img src="/images/about-natural-basket.webp" alt="Natural Basket: purity, health and a better future for your family. Founded by Pandem Anil Kumar Reddy, bringing chemical-free food from local farmers to every home." width={900} height={1234} loading="lazy" decoding="async" />
+        </figure>
         <div className="about-card">
           <h2>About Natural Basket</h2>
           <p>Natural Basket is a farm-to-home service bringing chemical-free produce, fresh milk and traditional foods to Hyderabad and nearby regions.</p>
