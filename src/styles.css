@@ -250,3 +250,51 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
   .basket-layout { grid-template-columns: 1.2fr 1fr; align-items: start; }
   .hero { padding: 80px 24px 90px; }
 }
+
+/* ---------- 3D farm section ---------- */
+.farm { padding: 40px 16px 8px; max-width: 1200px; margin: 0 auto; }
+.farm-head { text-align: center; margin-bottom: 18px; }
+.farm-head h2 { margin: 4px 0 6px; font-size: clamp(1.6rem, 3.4vw, 2.3rem); color: var(--primary-dark); }
+.farm-stage { position: relative; }
+.farm-canvas-wrap {
+  position: relative;
+  height: min(72vh, 620px);
+  min-height: 420px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #F4DDB0;
+  box-shadow: var(--shadow);
+  touch-action: none;
+}
+.farm-canvas { width: 100%; height: 100%; display: block; }
+.farm-canvas canvas { display: block; outline: none; }
+.farm-loading {
+  position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px;
+  background: #F4DDB0; color: var(--primary-dark); font-weight: 600;
+}
+.farm-loading img { border-radius: 14px; background: var(--white); padding: 6px; }
+.farm-controls {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px;
+}
+.farm-controls .btn { background: var(--white); }
+.farm-controls .btn.primary { background: var(--primary); }
+.farm-controls .btn[aria-pressed="true"] { background: var(--primary); color: var(--white); border-color: var(--primary); }
+.farm-hint { text-align: center; font-size: .9rem; margin: 8px 0 0; }
+.farm-placeholder { min-height: 420px; }
+.farm-poster { display: grid; gap: 14px; grid-template-columns: 1fr; }
+.farm-poster img { display: block; width: 100%; height: auto; border-radius: var(--radius); box-shadow: var(--shadow); }
+.farm-poster-milk { max-width: 340px; margin: 0 auto; }
+.farm-poster figure { margin: 0; }
+.milk-logo {
+  display: block; width: 150px; height: auto; padding: 6px; border-radius: 12px;
+  background: var(--white); box-shadow: 0 6px 18px rgba(31, 41, 55, .18); pointer-events: none;
+}
+@media (max-width: 720px) {
+  .farm { padding: 28px 12px 4px; }
+  .farm-canvas-wrap { height: 62vh; min-height: 360px; }
+  .farm-controls .btn { flex: 1 1 calc(50% - 8px); text-align: center; }
+  .farm-placeholder { min-height: 360px; }
+}
+@media (min-width: 900px) {
+  .farm-poster { grid-template-columns: 1fr 340px; align-items: start; }
+}

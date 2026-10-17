@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { api, type Category, type PublicProduct } from '../lib/api';
 import { useCart } from '../lib/cart';
 import { formatPaise } from '../lib/money';
 import ProductImage from '../components/ProductImage';
+
+// The 3D farm (three.js) loads only on the home page, in its own chunk.
+const FarmSection = lazy(() => import('../farm/FarmSection'));
 
 type Sort = 'featured' | 'name' | 'price_asc' | 'price_desc';
 
@@ -54,6 +57,10 @@ export default function ShopPage() {
           <a className="btn primary" href="#shop">Shop fresh items</a>
         </div>
       </section>
+
+      <Suspense fallback={<div className="farm-placeholder" aria-hidden="true" />}>
+        <FarmSection />
+      </Suspense>
 
       <section id="shop" className="shop" aria-labelledby="shop-title">
         <h2 id="shop-title">Shop</h2>

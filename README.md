@@ -159,3 +159,15 @@ Product price and image changes made in /admin do **not** trigger a deploy: they
 - Product photos must be uploaded in /admin; the starter catalogue has no photos yet.
 - The 3D hero uses lightweight CSS 3D decorations (no WebGL), so it works on low-end phones. Respects "reduce motion" settings.
 - Customer accounts are not included; ordering is guest checkout.
+
+## 11. The 3D farm experience
+
+The home page has an interactive 3D village farm (Three.js with React Three Fiber, drei and GSAP) between the hero and the shop.
+
+- **Where:** `src/farm/`. `FarmSection.tsx` is the page section, `FarmScene.tsx` holds the canvas, lights and camera transitions, `Farm.tsx` builds the farm, and `MilkGlass.tsx` is the milk pour.
+- **Buttons:** Explore Farm, Explore Vegetables and Explore Fresh Milk move the camera smoothly. Drag to look around and scroll or pinch to zoom.
+- **No external 3D files are needed.** Every model is built in code, so there is nothing to download or license. Optional upgrade: replace the procedural cows with a real Gir cow `.glb` from a licensed source (for example Sketchfab, filtered to CC0) and load it with drei's `useGLTF`, placing it under `public/models/`.
+- **Lazy loading:** three.js is in its own chunk and loads only on the home page. The static `farm-poster.webp` and `milk-poster.webp` are shown if WebGL is unavailable or the scene fails.
+- **Reduced motion:** when the OS asks for reduced motion, the animations stop and the camera jumps instead of gliding.
+- **Mobile:** lower pixel ratio, fewer birds, chickens and trees, and no shadows.
+- **Preview:** run `npm run dev` and open http://localhost:5173. The farm appears just below the hero.
