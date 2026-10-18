@@ -68,11 +68,11 @@ export default function FarmScene({ view, reduced, mobile }: Props) {
     <Canvas
       className="farm-canvas"
       shadows={!mobile}
-      dpr={mobile ? [1, 1.25] : [1, 1.75]}
+      dpr={mobile ? [1, 1.5] : [1, 1.75]}
       camera={{ position: VIEW_POSES.farm.pos, fov: 42, near: 0.1, far: 400 }}
-      gl={{ antialias: !mobile, powerPreference: 'high-performance' }}
+      gl={{ antialias: true, powerPreference: 'high-performance' }}
     >
-      <fog attach="fog" args={['#F4DDB0', 60, 180]} />
+      <fog attach="fog" args={['#F4DDB0', 70, 200]} />
       <hemisphereLight args={['#FFF3DA', '#6C8F3E', 0.9]} />
       <directionalLight
         position={[-18, 24, 12]}
