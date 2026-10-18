@@ -32,17 +32,30 @@ async function hmacKey(secret: string): Promise<CryptoKey> {
   return crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
 }
 
+// Cloudflare Workers' Web Crypto supports at most 100,000 PBKDF2 iterations.
+// scripts/hash-password.mjs uses the same value.
+const PBKDF2_ITERATIONS = 100_000;
+
 /** Verifies a password against a `pbkdf2$iterations$saltB64$hashB64` string. */
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const parts = stored.split('$');
   if (parts.length !== 4 || parts[0] !== 'pbkdf2') return false;
   const iterations = Number(parts[1]);
-  if (!Number.isInteger(iterations) || iterations < 100_000) return false;
-  const salt = b64urlDecode(parts[2].replace(/\+/g, '-').replace(/\//g, '_'));
-  const expected = b64urlDecode(parts[3]);
-  const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
-  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations, hash: 'SHA-256' }, key, 256);
-  return constantTimeEqual(new Uint8Array(bits), expected);
+  if (iterations !== PBKDF2_ITERATIONS) {
+    // Logs only the problem, never the hash or the password.
+    console.error(`ADMIN_PASSWORD_HASH must use ${PBKDF2_ITERATIONS} PBKDF2 iterations (Workers limit); regenerate it with npm run hash-password.`);
+    return false;
+  }
+  try {
+    const salt = b64urlDecode(parts[2].replace(/\+/g, '-').replace(/\//g, '_'));
+    const expected = b64urlDecode(parts[3]);
+    const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations, hash: 'SHA-256' }, key, 256);
+    return constantTimeEqual(new Uint8Array(bits), expected);
+  } catch {
+    console.error('ADMIN_PASSWORD_HASH is malformed; regenerate it with npm run hash-password.');
+    return false;
+  }
 }
 
 export async function createSessionToken(env: Env, username: string): Promise<string> {

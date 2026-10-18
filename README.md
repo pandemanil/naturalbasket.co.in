@@ -107,7 +107,7 @@ Product price and image changes made in /admin do **not** trigger a deploy: they
 ## 6. Security model
 
 - **Admin authentication is enforced on the server.** Every `/api/admin/*` route calls `requireAdmin`. Hiding the page is not relied upon.
-- Passwords are stored only as a PBKDF2-SHA256 hash (210,000 iterations). The plain password is never in code or the repository.
+- Passwords are stored only as a PBKDF2-SHA256 hash (100,000 iterations, the maximum Cloudflare Workers allows). The plain password is never in code or the repository.
 - Sessions are HMAC-signed, HttpOnly, Secure, SameSite=Strict cookies, valid for 8 hours. Changing `SESSION_SECRET` logs everyone out.
 - Login failures are throttled: 5 failed attempts per client IP in 15 minutes.
 - State-changing admin requests must come from the same origin (CSRF protection).
