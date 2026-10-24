@@ -22,12 +22,17 @@ const PALMS: { kind: 'banana' | 'coconut'; position: [number, number, number] }[
   { kind: 'banana', position: [4, 0, -11] },
 ];
 
-// ---------- Instanced plants ----------
+// ---------- Shared helpers ----------
 
-type Item = { x: number; y: number; z: number; s: number; sy?: number; r?: number; color?: string };
+type Item = {
+  x: number; y: number; z: number;
+  s: number; sy?: number;
+  r?: number; rx?: number; rz?: number;
+  color?: string;
+};
 
-// One InstancedMesh draws every plant of a kind in a single GPU call.
-function Instanced({ items, children }: { items: Item[]; children: ReactNode }) {
+// One InstancedMesh draws every item of a kind in a single GPU call.
+function Instanced({ items, children, shadows = true }: { items: Item[]; children: ReactNode; shadows?: boolean }) {
   const ref = useRef<THREE.InstancedMesh>(null);
 
   useLayoutEffect(() => {
@@ -38,7 +43,7 @@ function Instanced({ items, children }: { items: Item[]; children: ReactNode }) 
     items.forEach((it, i) => {
       dummy.position.set(it.x, it.y, it.z);
       dummy.scale.set(it.s, it.sy ?? it.s, it.s);
-      dummy.rotation.set(0, it.r ?? 0, 0);
+      dummy.rotation.set(it.rx ?? 0, it.r ?? 0, it.rz ?? 0);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
       if (it.color) mesh.setColorAt(i, color.set(it.color));
@@ -48,11 +53,23 @@ function Instanced({ items, children }: { items: Item[]; children: ReactNode }) 
   }, [items]);
 
   return (
-    <instancedMesh ref={ref} args={[undefined, undefined, items.length]} castShadow receiveShadow>
+    <instancedMesh ref={ref} args={[undefined, undefined, items.length]} castShadow={shadows} receiveShadow={shadows}>
       {children}
     </instancedMesh>
   );
 }
+
+// A soft dark disc under animals. Cheap contact shadow that also works on phones.
+function Blob({ length = 1, width = 1, y = 0.03, opacity = 0.22 }: { length?: number; width?: number; y?: number; opacity?: number }) {
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, y, 0]} scale={[length, width, 1]}>
+      <circleGeometry args={[1, 24]} />
+      <meshBasicMaterial color="#000000" transparent opacity={opacity} depthWrite={false} />
+    </mesh>
+  );
+}
+
+// ---------- Vegetable garden ----------
 
 function Garden() {
   const data = useMemo(() => {
@@ -62,6 +79,8 @@ function Garden() {
     const fruit: Item[] = [];
     const carrots: Item[] = [];
     const carrotTops: Item[] = [];
+    const greens = ['#4CA64C', '#3F8F3F', '#5BB35B'];
+    const tomatoes = ['#D7261E', '#E24B2A', '#C81E1E', '#9BBF3E'];
 
     ROW_X.forEach((x, r) => {
       PLANT_Z.forEach((z, c) => {
@@ -71,23 +90,53 @@ function Garden() {
         const kind = r === 0 || r === 3 ? 'tomato' : r === 2 ? 'carrot' : 'leafy';
 
         if (kind === 'tomato') {
-          foliage.push({ x: px, y: 0.6, z: pz, s: 0.5 + rand(k) * 0.15, sy: 0.75, color: '#3E8E3E' });
+          foliage.push({ x: px, y: 0.55, z: pz, s: 0.46 + rand(k) * 0.12, sy: 0.8, color: '#3E8E3E' });
+          foliage.push({ x: px + 0.15, y: 0.85, z: pz - 0.1, s: 0.34, sy: 0.7, color: '#4AA04A' });
           stakes.push({ x: px, y: 0.8, z: pz, s: 1 });
-          fruit.push({ x: px + 0.22, y: 0.5 + rand(k + 2) * 0.2, z: pz + 0.12, s: 1, color: '#D7261E' });
-          fruit.push({ x: px - 0.18, y: 0.4 + rand(k + 3) * 0.2, z: pz - 0.1, s: 1, color: '#E24B2A' });
+          for (let j = 0; j < 4; j++) {
+            fruit.push({
+              x: px + Math.cos(j * 1.7 + k) * 0.28,
+              y: 0.4 + rand(k + j) * 0.5,
+              z: pz + Math.sin(j * 1.7 + k) * 0.28,
+              s: 1.15,
+              color: tomatoes[(k + j) % 4],
+            });
+          }
         } else if (kind === 'carrot') {
-          carrots.push({ x: px, y: 0.26, z: pz, s: 1, color: '#E8731E' });
-          carrotTops.push({ x: px, y: 0.55, z: pz, s: 0.8, sy: 0.9, color: '#3C8D3C' });
+          // Wide shoulder up, tip buried, with a feathery green top.
+          carrots.push({ x: px, y: 0.2, z: pz, s: 1, rz: Math.PI, color: '#E8731E' });
+          for (let j = 0; j < 3; j++) {
+            carrotTops.push({
+              x: px + Math.cos(j * 2.1) * 0.05,
+              y: 0.55,
+              z: pz + Math.sin(j * 2.1) * 0.05,
+              s: 1,
+              rx: Math.sin(j * 2.1) * 0.35,
+              rz: Math.cos(j * 2.1) * 0.35,
+              color: '#3C8D3C',
+            });
+          }
         } else {
-          leafy.push({
-            x: px, y: 0.22, z: pz, s: 0.45 + rand(k) * 0.15, sy: 0.5,
-            color: r === 4 ? '#2F7D32' : rand(k + 4) > 0.5 ? '#4CA64C' : '#3F8F3F',
-          });
+          for (let j = 0; j < 3; j++) {
+            leafy.push({
+              x: px + Math.cos(j * 2.1) * 0.14,
+              y: 0.22 + j * 0.03,
+              z: pz + Math.sin(j * 2.1) * 0.14,
+              s: 0.3 + rand(k + j) * 0.12,
+              sy: 0.55,
+              color: r === 4 ? (j % 2 ? '#2F7D32' : '#3A8A3A') : greens[(k + j) % 3],
+            });
+          }
         }
       });
     });
 
-    return { leafy, foliage, stakes, fruit, carrots, carrotTops };
+    // Bamboo fence posts along two edges of the garden.
+    const posts: Item[] = [];
+    for (let i = 0; i <= 9; i++) posts.push({ x: -16.4, y: 0.5, z: -8.8 + i * 2, s: 1 });
+    for (let i = 1; i <= 5; i++) posts.push({ x: -16.4 + i * 2.5, y: 0.5, z: 8.9, s: 1 });
+
+    return { leafy, foliage, stakes, fruit, carrots, carrotTops, posts };
   }, []);
 
   return (
@@ -107,40 +156,80 @@ function Garden() {
       ))}
 
       <Instanced items={data.leafy}>
-        <sphereGeometry args={[0.42, 8, 6]} />
-        <meshStandardMaterial roughness={0.9} />
+        <sphereGeometry args={[0.42, 10, 8]} />
+        <meshStandardMaterial roughness={0.85} />
       </Instanced>
       <Instanced items={data.foliage}>
-        <sphereGeometry args={[0.4, 8, 6]} />
-        <meshStandardMaterial roughness={0.9} />
+        <sphereGeometry args={[0.4, 10, 8]} />
+        <meshStandardMaterial roughness={0.85} />
       </Instanced>
       <Instanced items={data.stakes}>
         <cylinderGeometry args={[0.03, 0.03, 1.5, 5]} />
         <meshStandardMaterial color="#C9A96A" roughness={0.9} />
       </Instanced>
       <Instanced items={data.fruit}>
-        <sphereGeometry args={[0.14, 8, 6]} />
-        <meshStandardMaterial roughness={0.4} />
+        <sphereGeometry args={[0.14, 10, 8]} />
+        <meshStandardMaterial roughness={0.35} />
       </Instanced>
       <Instanced items={data.carrots}>
-        <coneGeometry args={[0.12, 0.45, 8]} />
+        <coneGeometry args={[0.1, 0.45, 8]} />
         <meshStandardMaterial roughness={0.8} />
       </Instanced>
       <Instanced items={data.carrotTops}>
-        <sphereGeometry args={[0.2, 6, 5]} />
+        <coneGeometry args={[0.035, 0.4, 5]} />
         <meshStandardMaterial roughness={0.9} />
       </Instanced>
+      <Instanced items={data.posts}>
+        <cylinderGeometry args={[0.05, 0.05, 1, 6]} />
+        <meshStandardMaterial color="#A98A52" roughness={0.9} />
+      </Instanced>
 
-      {/* Bamboo fence along the garden edges */}
-      <mesh position={[-10.3, 0.5, 8.9]}>
-        <boxGeometry args={[12.5, 0.08, 0.08]} />
+      <mesh position={[-10.3, 0.7, 8.9]}>
+        <boxGeometry args={[12.5, 0.06, 0.06]} />
         <meshStandardMaterial color="#B89A5E" roughness={0.9} />
       </mesh>
-      <mesh position={[-16.4, 0.5, 0]}>
-        <boxGeometry args={[0.08, 0.08, 18.5]} />
+      <mesh position={[-16.4, 0.7, 0]}>
+        <boxGeometry args={[0.06, 0.06, 18.5]} />
         <meshStandardMaterial color="#B89A5E" roughness={0.9} />
       </mesh>
     </group>
+  );
+}
+
+// Grass tufts scattered over the meadow, kept off the beds, path and shed.
+function Grass({ count }: { count: number }) {
+  const items = useMemo(() => {
+    const out: Item[] = [];
+    const tones = ['#6FA043', '#7DB04C', '#5E8F3A', '#8DB855'];
+    let i = 0;
+    while (out.length < count && i < count * 6) {
+      i++;
+      const a = rand(i * 3.1) * Math.PI * 2;
+      const d = 4 + rand(i * 5.7) * 32;
+      const x = Math.cos(a) * d;
+      const z = Math.sin(a) * d * 0.8;
+      const inGarden = x > -17.5 && x < -3.8 && Math.abs(z) < 9.6;
+      const onPath = Math.abs(x + 1) < 1.5;
+      const inShed = x > 5.5 && x < 14.5 && Math.abs(z) < 3;
+      if (inGarden || onPath || inShed) continue;
+      out.push({
+        x, y: 0.2, z,
+        s: 0.7 + rand(i * 9.3) * 0.7,
+        sy: 0.6 + rand(i * 2.3) * 0.9,
+        rx: (rand(i * 8.1) - 0.5) * 0.4,
+        rz: (rand(i * 1.9) - 0.5) * 0.4,
+        r: rand(i) * 6,
+        color: tones[i % 4],
+      });
+    }
+    return out;
+  }, [count]);
+
+  return (
+    <Instanced items={items} shadows={false}>
+      <coneGeometry args={[0.07, 0.45, 4]} />
+      <meshStandardMaterial roughness={1} />
+    </Instanced>
   );
 }
 
@@ -151,76 +240,139 @@ type CowProps = {
   rotation?: number;
   scale?: number;
   body?: string;
+  patch?: string;
   spots?: boolean;
   phase: number;
   active: boolean;
   reduced: boolean;
 };
 
-function Cow({ position, rotation = 0, scale = 1, body = '#B9825A', spots = false, phase, active, reduced }: CowProps) {
+// Gir-style cow: shoulder hump, bulging forehead, long drooping ears, dewlap.
+function Cow({ position, rotation = 0, scale = 1, body = '#B9825A', patch = '#F3EEE2', spots = false, phase, active, reduced }: CowProps) {
   const head = useRef<THREE.Group>(null);
   const tail = useRef<THREE.Group>(null);
+  const earL = useRef<THREE.Mesh>(null);
+  const earR = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
     if (!active || reduced) return;
     const t = state.clock.elapsedTime;
     if (head.current) head.current.rotation.z = -0.3 + Math.sin(t * 0.7 + phase) * 0.08;
     if (tail.current) tail.current.rotation.z = Math.sin(t * 2.2 + phase) * 0.35;
+    // Occasional ear flick.
+    const flick = Math.max(0, Math.sin(t * 0.9 + phase * 2)) ** 8 * 0.35;
+    if (earL.current) earL.current.rotation.x = -0.6 - flick;
+    if (earR.current) earR.current.rotation.x = 0.6 + flick;
   });
 
   return (
     <group position={position} rotation={[0, rotation, 0]} scale={scale}>
-      <mesh position={[0, 0.95, 0]} castShadow>
-        <boxGeometry args={[1.6, 0.72, 0.72]} />
-        <meshStandardMaterial color={body} roughness={0.8} />
+      <Blob length={1.25} width={0.55} />
+
+      {/* Barrel */}
+      <mesh position={[0, 0.98, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <capsuleGeometry args={[0.36, 0.95, 6, 14]} />
+        <meshStandardMaterial color={body} roughness={0.85} />
       </mesh>
-      {spots && (
-        <>
-          <mesh position={[0.1, 1.02, 0.37]}>
-            <boxGeometry args={[0.5, 0.32, 0.02]} />
-            <meshStandardMaterial color="#FFFFFF" />
+      {/* Shoulder hump */}
+      <mesh position={[0.5, 1.4, 0]} scale={[0.9, 1, 0.8]} castShadow>
+        <sphereGeometry args={[0.26, 12, 10]} />
+        <meshStandardMaterial color={body} roughness={0.85} />
+      </mesh>
+      {/* Dewlap */}
+      <mesh position={[0.72, 0.72, 0]} scale={[1.2, 0.9, 0.5]}>
+        <sphereGeometry args={[0.2, 10, 8]} />
+        <meshStandardMaterial color={body} roughness={0.9} />
+      </mesh>
+      {spots &&
+        [-1, 1].map((side) => (
+          <mesh key={side} position={[0.15, 1.05, side * 0.32]} scale={[0.55, 0.32, 0.12]}>
+            <sphereGeometry args={[0.5, 12, 8]} />
+            <meshStandardMaterial color={patch} roughness={0.9} />
           </mesh>
-          <mesh position={[-0.4, 1.0, -0.37]}>
-            <boxGeometry args={[0.4, 0.28, 0.02]} />
-            <meshStandardMaterial color="#FFFFFF" />
-          </mesh>
-        </>
-      )}
+        ))}
       {/* Udder */}
-      <mesh position={[-0.2, 0.55, 0]}>
-        <boxGeometry args={[0.3, 0.14, 0.3]} />
-        <meshStandardMaterial color="#E8A6A0" />
+      <mesh position={[-0.35, 0.58, 0]} scale={[0.9, 0.6, 0.9]}>
+        <sphereGeometry args={[0.17, 10, 8]} />
+        <meshStandardMaterial color="#E7A9A0" roughness={0.8} />
       </mesh>
+
+      {/* Legs with hooves */}
       {[-0.6, 0.6].flatMap((x) =>
-        [-0.25, 0.25].map((z) => (
-          <mesh key={`${x}-${z}`} position={[x, 0.35, z]} castShadow>
-            <cylinderGeometry args={[0.08, 0.07, 0.7, 8]} />
-            <meshStandardMaterial color="#6B4A2E" />
-          </mesh>
+        [-0.22, 0.22].map((z) => (
+          <group key={`${x}-${z}`} position={[x, 0, z]}>
+            <mesh position={[0, 0.4, 0]} castShadow>
+              <capsuleGeometry args={[0.075, 0.5, 4, 8]} />
+              <meshStandardMaterial color={body} roughness={0.9} />
+            </mesh>
+            <mesh position={[0, 0.04, 0]}>
+              <cylinderGeometry args={[0.085, 0.09, 0.08, 8]} />
+              <meshStandardMaterial color="#2B2118" roughness={0.6} />
+            </mesh>
+          </group>
         )),
       )}
+
       {/* Head pivots at the neck so it can graze gently */}
-      <group ref={head} position={[0.85, 1.25, 0]}>
-        <mesh position={[0.2, 0, 0]} castShadow>
-          <boxGeometry args={[0.5, 0.45, 0.42]} />
-          <meshStandardMaterial color={body} roughness={0.8} />
+      <group ref={head} position={[0.95, 1.3, 0]}>
+        <mesh position={[0.1, -0.05, 0]} scale={[1.4, 1, 0.9]} castShadow>
+          <sphereGeometry args={[0.2, 10, 8]} />
+          <meshStandardMaterial color={body} roughness={0.85} />
         </mesh>
-        <mesh position={[0.5, -0.1, 0]}>
-          <boxGeometry args={[0.22, 0.2, 0.36]} />
-          <meshStandardMaterial color="#D9A39A" />
+        <mesh position={[0.3, -0.1, 0]} scale={[1.25, 1, 0.95]} castShadow>
+          <sphereGeometry args={[0.22, 12, 10]} />
+          <meshStandardMaterial color={body} roughness={0.85} />
         </mesh>
+        {/* Bulging forehead */}
+        <mesh position={[0.2, 0.08, 0]} scale={[1.1, 1, 1.2]}>
+          <sphereGeometry args={[0.17, 10, 8]} />
+          <meshStandardMaterial color={body} roughness={0.85} />
+        </mesh>
+        {/* Muzzle and nostrils */}
+        <mesh position={[0.55, -0.2, 0]} scale={[1.2, 0.9, 1]}>
+          <sphereGeometry args={[0.13, 10, 8]} />
+          <meshStandardMaterial color="#CFA096" roughness={0.7} />
+        </mesh>
+        {[-0.05, 0.05].map((z) => (
+          <mesh key={z} position={[0.66, -0.18, z]}>
+            <sphereGeometry args={[0.02, 6, 5]} />
+            <meshStandardMaterial color="#2B2118" />
+          </mesh>
+        ))}
+        {/* Eyes */}
+        {[-0.19, 0.19].map((z) => (
+          <mesh key={z} position={[0.38, -0.02, z]}>
+            <sphereGeometry args={[0.035, 8, 6]} />
+            <meshStandardMaterial color="#1A1410" roughness={0.3} />
+          </mesh>
+        ))}
+        {/* Horns */}
         {[-0.15, 0.15].map((z) => (
           <mesh key={z} position={[0.02, 0.27, z]} rotation={[0, 0, 0.5]}>
             <coneGeometry args={[0.04, 0.22, 6]} />
-            <meshStandardMaterial color="#EFE7D2" />
+            <meshStandardMaterial color="#EFE7D2" roughness={0.5} />
           </mesh>
         ))}
+        {/* Long drooping ears */}
+        <mesh ref={earL} position={[0.1, -0.05, -0.28]} rotation={[-0.6, 0, 0]} scale={[0.7, 0.35, 1.5]}>
+          <sphereGeometry args={[0.1, 8, 6]} />
+          <meshStandardMaterial color={body} roughness={0.9} />
+        </mesh>
+        <mesh ref={earR} position={[0.1, -0.05, 0.28]} rotation={[0.6, 0, 0]} scale={[0.7, 0.35, 1.5]}>
+          <sphereGeometry args={[0.1, 8, 6]} />
+          <meshStandardMaterial color={body} roughness={0.9} />
+        </mesh>
       </group>
+
       {/* Tail pivots at the rump */}
-      <group ref={tail} position={[-0.8, 1.15, 0]}>
-        <mesh position={[0, -0.35, 0]}>
-          <cylinderGeometry args={[0.03, 0.03, 0.7, 5]} />
-          <meshStandardMaterial color="#6B4A2E" />
+      <group ref={tail} position={[-0.85, 1.2, 0]}>
+        <mesh position={[0, -0.4, 0]}>
+          <cylinderGeometry args={[0.025, 0.02, 0.8, 5]} />
+          <meshStandardMaterial color={body} roughness={0.9} />
+        </mesh>
+        <mesh position={[0, -0.85, 0]} scale={[1, 2, 1]}>
+          <sphereGeometry args={[0.06, 8, 6]} />
+          <meshStandardMaterial color="#3A2A1E" roughness={1} />
         </mesh>
       </group>
     </group>
@@ -232,6 +384,7 @@ type HenProps = { index: number; cx: number; cz: number; radius: number; color: 
 function Chicken({ index, cx, cz, radius, color, big = false, active, reduced }: HenProps) {
   const ref = useRef<THREE.Group>(null);
   const scale = big ? 1.25 : 1;
+  const wing = big ? '#1F1F1F' : color;
 
   useFrame((state) => {
     if (!ref.current || !active) return;
@@ -248,32 +401,67 @@ function Chicken({ index, cx, cz, radius, color, big = false, active, reduced }:
 
   return (
     <group ref={ref} scale={scale}>
-      <mesh position={[0, 0.2, 0]} scale={[1.3, 1, 1]} castShadow>
-        <sphereGeometry args={[0.2, 10, 8]} />
-        <meshStandardMaterial color={color} roughness={0.9} />
+      <mesh position={[0, 0.24, 0]} scale={[1.25, 0.95, 0.95]} castShadow>
+        <sphereGeometry args={[0.2, 12, 10]} />
+        <meshStandardMaterial color={color} roughness={0.95} />
       </mesh>
-      <mesh position={[0.22, 0.4, 0]}>
-        <sphereGeometry args={[0.1, 10, 8]} />
-        <meshStandardMaterial color={color} roughness={0.9} />
+      <mesh position={[0.12, 0.22, 0]}>
+        <sphereGeometry args={[0.15, 10, 8]} />
+        <meshStandardMaterial color={color} roughness={0.95} />
       </mesh>
-      <mesh position={[0.33, 0.37, 0]} rotation={[0, 0, -Math.PI / 2]}>
-        <coneGeometry args={[0.04, 0.08, 6]} />
+      {[-0.16, 0.16].map((z) => (
+        <mesh key={z} position={[-0.02, 0.27, z]} scale={[1, 0.6, 0.35]}>
+          <sphereGeometry args={[0.14, 8, 6]} />
+          <meshStandardMaterial color={wing} roughness={0.95} />
+        </mesh>
+      ))}
+      <mesh position={[0.2, 0.38, 0]} scale={[0.6, 1.2, 0.6]}>
+        <sphereGeometry args={[0.09, 8, 6]} />
+        <meshStandardMaterial color={color} roughness={0.95} />
+      </mesh>
+      <mesh position={[0.26, 0.5, 0]}>
+        <sphereGeometry args={[0.075, 10, 8]} />
+        <meshStandardMaterial color={color} roughness={0.95} />
+      </mesh>
+      <mesh position={[0.34, 0.49, 0]} rotation={[0, 0, -Math.PI / 2]}>
+        <coneGeometry args={[0.03, 0.08, 6]} />
         <meshStandardMaterial color="#E0A030" />
       </mesh>
-      <mesh position={[0.22, 0.52, 0]}>
+      <mesh position={[0.25, 0.58, 0]} scale={[1.4, 0.9, 0.3]}>
         <sphereGeometry args={[0.05, 8, 6]} />
         <meshStandardMaterial color="#C81E1E" />
       </mesh>
-      <mesh position={[-0.24, 0.32, 0]} rotation={[0, 0, Math.PI / 4]}>
-        <coneGeometry args={[0.1, 0.22, 6]} />
-        <meshStandardMaterial color={color} />
+      <mesh position={[0.3, 0.44, 0]}>
+        <sphereGeometry args={[0.025, 6, 5]} />
+        <meshStandardMaterial color="#C81E1E" />
       </mesh>
-      {[-0.04, 0.04].map((z) => (
-        <mesh key={z} position={[0, 0.05, z]}>
-          <cylinderGeometry args={[0.012, 0.012, 0.1, 5]} />
-          <meshStandardMaterial color="#D08B3A" />
+      {[-0.06, 0.06].map((z) => (
+        <mesh key={z} position={[0.29, 0.52, z]}>
+          <sphereGeometry args={[0.014, 6, 5]} />
+          <meshStandardMaterial color="#111" />
         </mesh>
       ))}
+      {/* Tail fan */}
+      {[-0.3, 0, 0.3].map((a) => (
+        <mesh key={a} position={[-0.26, 0.36, a * 0.25]} rotation={[a, 0, Math.PI / 4 + a * 0.2]}>
+          <coneGeometry args={[0.05, big ? 0.38 : 0.26, 6]} />
+          <meshStandardMaterial color={big ? '#1F3A2A' : color} roughness={0.9} />
+        </mesh>
+      ))}
+      {/* Legs */}
+      {[-0.05, 0.05].map((z) => (
+        <group key={z} position={[0, 0, z]}>
+          <mesh position={[0, 0.07, 0]}>
+            <cylinderGeometry args={[0.012, 0.014, 0.14, 5]} />
+            <meshStandardMaterial color="#D08B3A" />
+          </mesh>
+          <mesh position={[0.025, 0.01, 0]}>
+            <boxGeometry args={[0.08, 0.02, 0.04]} />
+            <meshStandardMaterial color="#D08B3A" />
+          </mesh>
+        </group>
+      ))}
+      <Blob length={0.3} width={0.2} opacity={0.25} />
     </group>
   );
 }
@@ -305,19 +493,27 @@ function Bird({ index, active, reduced }: BirdProps) {
 
   return (
     <group ref={ref} position={[0, height, 0]}>
-      <mesh>
-        <boxGeometry args={[0.32, 0.08, 0.1]} />
+      <mesh scale={[1.9, 0.7, 0.7]}>
+        <sphereGeometry args={[0.09, 8, 6]} />
         <meshStandardMaterial color="#222" />
       </mesh>
-      <group ref={wingL} position={[0, 0.02, 0.04]}>
-        <mesh position={[0, 0, 0.22]}>
-          <boxGeometry args={[0.1, 0.02, 0.42]} />
+      <mesh position={[0.2, 0.03, 0]}>
+        <sphereGeometry args={[0.05, 8, 6]} />
+        <meshStandardMaterial color="#222" />
+      </mesh>
+      <mesh position={[-0.22, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <coneGeometry args={[0.04, 0.16, 4]} />
+        <meshStandardMaterial color="#222" />
+      </mesh>
+      <group ref={wingL} position={[0, 0.03, 0.04]}>
+        <mesh position={[0, 0, 0.26]} scale={[0.09, 0.015, 0.26]}>
+          <sphereGeometry args={[1, 8, 4]} />
           <meshStandardMaterial color="#2B2B2B" />
         </mesh>
       </group>
-      <group ref={wingR} position={[0, 0.02, -0.04]}>
-        <mesh position={[0, 0, -0.22]}>
-          <boxGeometry args={[0.1, 0.02, 0.42]} />
+      <group ref={wingR} position={[0, 0.03, -0.04]}>
+        <mesh position={[0, 0, -0.26]} scale={[0.09, 0.015, 0.26]}>
+          <sphereGeometry args={[1, 8, 4]} />
           <meshStandardMaterial color="#2B2B2B" />
         </mesh>
       </group>
@@ -326,6 +522,11 @@ function Bird({ index, active, reduced }: BirdProps) {
 }
 
 type CloudProps = { index: number; active: boolean; reduced: boolean };
+
+const CLOUD_PUFFS: readonly (readonly [number, number, number, number])[] = [
+  [0, 0, 0, 3.2], [2.8, 0.3, 0.6, 2.5], [-2.7, 0.1, -0.4, 2.3],
+  [0.9, 1.5, 0, 2.2], [-1.2, 1.1, 0.8, 1.8], [4.9, -0.2, 0, 1.6], [-4.6, -0.2, 0.2, 1.5],
+];
 
 function Cloud({ index, active, reduced }: CloudProps) {
   const ref = useRef<THREE.Group>(null);
@@ -344,27 +545,40 @@ function Cloud({ index, active, reduced }: CloudProps) {
 
   return (
     <group ref={ref} position={[x0, y, z]}>
-      {([[0, 0, 0, 3.2], [2.6, 0.4, 0.6, 2.4], [-2.4, 0.2, -0.4, 2.2], [0.8, 1.4, 0, 2]] as const).map(
-        ([px, py, pz, r], i) => (
-          <mesh key={i} position={[px, py, pz]}>
-            <sphereGeometry args={[r, 12, 10]} />
-            <meshStandardMaterial color="#FFFFFF" roughness={1} />
-          </mesh>
-        ),
-      )}
+      {CLOUD_PUFFS.map(([px, py, pz, r], i) => (
+        <mesh key={i} position={[px, py, pz]} scale={[1, 0.72, 1]}>
+          <sphereGeometry args={[r, 14, 10]} />
+          <meshStandardMaterial color="#FFFFFF" roughness={1} emissive="#FFF4DC" emissiveIntensity={0.25} />
+        </mesh>
+      ))}
     </group>
   );
 }
 
 // ---------- Trees ----------
 
-function Palm({ kind, position, phase, active, reduced }: { kind: 'banana' | 'coconut'; position: [number, number, number]; phase: number; active: boolean; reduced: boolean }) {
+function Frond({ length, width, droop, color }: { length: number; width: number; droop: number; color: string }) {
+  return (
+    <group rotation={[droop, 0, 0]}>
+      <mesh position={[0, 0, length / 2]} scale={[width, 0.03, length / 2]} castShadow>
+        <sphereGeometry args={[1, 12, 6]} />
+        <meshStandardMaterial color={color} roughness={0.7} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[0, 0.02, length / 2]}>
+        <boxGeometry args={[0.025, 0.02, length]} />
+        <meshStandardMaterial color="#B6C97A" roughness={0.8} />
+      </mesh>
+    </group>
+  );
+}
+
+type PalmProps = { kind: 'banana' | 'coconut'; position: [number, number, number]; phase: number; active: boolean; reduced: boolean };
+
+function Palm({ kind, position, phase, active, reduced }: PalmProps) {
   const crown = useRef<THREE.Group>(null);
   const coconut = kind === 'coconut';
   const height = coconut ? 6.2 : 2.8;
-  const leafLength = coconut ? 3.2 : 2.4;
-  const droop = coconut ? 0.35 : 0.5;
-  const leafCount = coconut ? 9 : 7;
+  const leafCount = coconut ? 10 : 7;
 
   useFrame((state) => {
     if (!crown.current || !active || reduced) return;
@@ -375,32 +589,61 @@ function Palm({ kind, position, phase, active, reduced }: { kind: 'banana' | 'co
 
   return (
     <group position={position}>
-      <mesh position={[0, height / 2, 0]} castShadow>
-        <cylinderGeometry args={[0.12, 0.2, height, 8]} />
-        <meshStandardMaterial color="#8C6A44" roughness={0.9} />
-      </mesh>
-      <group ref={crown} position={[0, height, 0]}>
+      <Blob length={coconut ? 1.4 : 1.8} width={coconut ? 1.4 : 1.8} opacity={0.18} />
+      {coconut ? (
+        // Gently curved trunk built from stacked, slightly narrowing rings.
+        Array.from({ length: 6 }, (_, i) => (
+          <mesh key={i} position={[(i / 5) ** 2 * 0.9, i * 1.05 + 0.55, 0]} rotation={[0, 0, -0.08 * i]} castShadow>
+            <cylinderGeometry args={[0.15 - i * 0.012, 0.19 - i * 0.012, 1.1, 8]} />
+            <meshStandardMaterial color={i % 2 ? '#7E5E3B' : '#8C6A44'} roughness={0.95} />
+          </mesh>
+        ))
+      ) : (
+        <mesh position={[0, height / 2, 0]} castShadow>
+          <cylinderGeometry args={[0.14, 0.22, height, 10]} />
+          <meshStandardMaterial color="#8FA05A" roughness={0.9} />
+        </mesh>
+      )}
+
+      <group ref={crown} position={[coconut ? 0.9 : 0, height, 0]}>
         {Array.from({ length: leafCount }, (_, i) => (
           <group key={i} rotation={[0, (i / leafCount) * Math.PI * 2, 0]}>
-            <group rotation={[droop, 0, 0]}>
-              <mesh position={[0, 0, leafLength / 2]} castShadow>
-                <boxGeometry args={[0.36, 0.03, leafLength]} />
-                <meshStandardMaterial color={i % 2 ? '#3E9B3A' : '#4DAA45'} roughness={0.7} side={THREE.DoubleSide} />
-              </mesh>
-            </group>
+            <Frond
+              length={coconut ? 3.3 : 2.4}
+              width={coconut ? 0.42 : 0.34}
+              droop={coconut ? 0.35 : 0.55}
+              color={i % 2 ? '#3E9B3A' : '#4DAA45'}
+            />
           </group>
         ))}
         {coconut &&
-          [[0.15, -0.25, 0.1], [-0.12, -0.3, -0.08], [0.02, -0.35, 0.16]].map(([x, y, z], i) => (
+          [[0.15, -0.25, 0.1], [-0.12, -0.3, -0.08], [0.02, -0.35, 0.16], [0.18, -0.32, -0.14]].map(([x, y, z], i) => (
             <mesh key={i} position={[x, y, z]}>
-              <sphereGeometry args={[0.13, 8, 6]} />
-              <meshStandardMaterial color="#7A5530" />
+              <sphereGeometry args={[0.14, 10, 8]} />
+              <meshStandardMaterial color="#7A5530" roughness={0.9} />
             </mesh>
           ))}
+        {!coconut && (
+          // Hanging banana bunch
+          <group position={[0.25, -0.35, 0]}>
+            {Array.from({ length: 8 }, (_, i) => (
+              <mesh
+                key={i}
+                position={[Math.cos(i * 0.8) * 0.1, -0.1 - (i % 3) * 0.08, Math.sin(i * 0.8) * 0.1]}
+                rotation={[0, 0, 0.25]}
+              >
+                <capsuleGeometry args={[0.04, 0.2, 4, 8]} />
+                <meshStandardMaterial color="#D9C43E" roughness={0.6} />
+              </mesh>
+            ))}
+          </group>
+        )}
       </group>
     </group>
   );
 }
+
+// ---------- Village, landmarks, hills ----------
 
 function Village() {
   const houses: [number, number][] = [[-30, -40], [-22, -44], [-6, -48], [12, -46], [26, -40]];
@@ -416,20 +659,60 @@ function Village() {
             <coneGeometry args={[3.2, 1.6, 4]} />
             <meshStandardMaterial color="#B5562F" roughness={0.8} />
           </mesh>
+          <mesh position={[0, 1.1, 2.01]}>
+            <boxGeometry args={[0.9, 1.7, 0.05]} />
+            <meshStandardMaterial color="#6B4A2E" roughness={0.9} />
+          </mesh>
+          <mesh position={[1.2, 1.8, 2.01]}>
+            <boxGeometry args={[0.7, 0.7, 0.05]} />
+            <meshStandardMaterial color="#3B5B7A" roughness={0.5} />
+          </mesh>
         </group>
       ))}
+
+      {/* Small temple with stacked tiers, as in the reference picture */}
+      <group position={[-14, 0, -52]}>
+        {[0, 1, 2].map((i) => (
+          <mesh key={i} position={[0, 1 + i * 1.5, 0]} castShadow>
+            <boxGeometry args={[4.2 - i * 1.1, 1.5, 4.2 - i * 1.1]} />
+            <meshStandardMaterial color={i % 2 ? '#F2E4C9' : '#FFFFFF'} roughness={0.9} />
+          </mesh>
+        ))}
+        <mesh position={[0, 5.4, 0]}>
+          <coneGeometry args={[0.8, 1.4, 8]} />
+          <meshStandardMaterial color="#D9A441" roughness={0.5} />
+        </mesh>
+      </group>
+
+      {/* Overhead water tank on legs */}
+      <group position={[-26, 0, -34]}>
+        {[[-0.8, -0.8], [0.8, -0.8], [-0.8, 0.8], [0.8, 0.8]].map(([x, z], i) => (
+          <mesh key={i} position={[x, 3, z]}>
+            <cylinderGeometry args={[0.08, 0.08, 6, 6]} />
+            <meshStandardMaterial color="#7C7C7C" roughness={0.7} />
+          </mesh>
+        ))}
+        <mesh position={[0, 6.8, 0]} castShadow>
+          <cylinderGeometry args={[1.6, 1.6, 1.8, 16]} />
+          <meshStandardMaterial color="#8E9AA3" roughness={0.6} />
+        </mesh>
+      </group>
     </group>
   );
 }
 
+// Low, hazy hills in layers, so distance reads as depth.
 function Hills() {
-  const hills: [number, number, number][] = [[-60, -95, 22], [-20, -110, 30], [25, -100, 26], [70, -120, 36]];
+  const hills: [number, number, number, string][] = [
+    [-70, -120, 30, '#6E9A6A'], [-25, -135, 38, '#7BA373'], [30, -130, 34, '#6E9A6A'],
+    [80, -125, 32, '#7BA373'], [-110, -80, 26, '#7BA373'], [115, -70, 28, '#6E9A6A'],
+  ];
   return (
     <group>
-      {hills.map(([x, z, r], i) => (
-        <mesh key={i} position={[x, 0, z]} scale={[r * 1.6, r * 0.9, r]}>
-          <sphereGeometry args={[1, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2]} />
-          <meshStandardMaterial color="#5E8B5B" roughness={1} />
+      {hills.map(([x, z, r, color], i) => (
+        <mesh key={i} position={[x, -0.5, z]} scale={[r * 1.8, r * 0.42, r]}>
+          <sphereGeometry args={[1, 24, 10, 0, Math.PI * 2, 0, Math.PI / 2]} />
+          <meshStandardMaterial color={color} roughness={1} />
         </mesh>
       ))}
     </group>
@@ -437,22 +720,50 @@ function Hills() {
 }
 
 function Ground() {
+  const geometry = useMemo(() => {
+    const g = new THREE.PlaneGeometry(240, 240, 90, 90);
+    g.rotateX(-Math.PI / 2);
+    const pos = g.attributes.position;
+    const colors = new Float32Array(pos.count * 3);
+    const base = new THREE.Color('#7FA34C');
+    const light = new THREE.Color('#9BB85A');
+    const dark = new THREE.Color('#6B8F3E');
+    const c = new THREE.Color();
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const z = pos.getZ(i);
+      const n = 0.5 + 0.5 * Math.sin(x * 0.21) * Math.cos(z * 0.17) + (rand(Math.floor(x) * 7.1 + Math.floor(z) * 3.3) - 0.5) * 0.25;
+      c.copy(base).lerp(n > 0.5 ? light : dark, Math.min(1, Math.abs(n - 0.5) * 1.8));
+      colors.set([c.r, c.g, c.b], i * 3);
+      const d = Math.hypot(x, z);
+      // Keep the farm flat; roll the land gently far away.
+      if (d > 55) pos.setY(i, (Math.sin(x * 0.13) + Math.cos(z * 0.11)) * 0.5 * Math.min(1, (d - 55) / 30));
+    }
+    pos.needsUpdate = true;
+    g.computeVertexNormals();
+    g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    return g;
+  }, []);
+
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[80, 64]} />
-        <meshStandardMaterial color="#86A953" roughness={1} />
+      <mesh geometry={geometry} receiveShadow>
+        <meshStandardMaterial vertexColors roughness={1} />
       </mesh>
       {/* Walking path from the garden to the shed */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1, 0.02, 0]} receiveShadow>
         <planeGeometry args={[2.4, 60]} />
         <meshStandardMaterial color="#B88A5A" roughness={1} />
       </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1, 0.025, 0]}>
+        <planeGeometry args={[1.1, 60]} />
+        <meshStandardMaterial color="#A57B4E" roughness={1} />
+      </mesh>
     </group>
   );
 }
 
-// Sunrise gradient on the inside of a large sphere.
+// Sunrise gradient on the inside of a large sphere, with a soft sun and glow.
 function SkyDome() {
   const geometry = useMemo(() => {
     const g = new THREE.SphereGeometry(190, 32, 16);
@@ -477,9 +788,13 @@ function SkyDome() {
       <mesh geometry={geometry} renderOrder={-1}>
         <meshBasicMaterial vertexColors side={THREE.BackSide} fog={false} />
       </mesh>
-      <mesh position={[-60, 16, -90]}>
-        <sphereGeometry args={[5, 24, 16]} />
-        <meshBasicMaterial color="#FFE7A3" fog={false} />
+      <mesh position={[-60, 14, -100]}>
+        <sphereGeometry args={[4.5, 24, 16]} />
+        <meshBasicMaterial color="#FFF1C2" fog={false} />
+      </mesh>
+      <mesh position={[-60, 14, -100]}>
+        <sphereGeometry args={[12, 24, 16]} />
+        <meshBasicMaterial color="#FFD58A" transparent opacity={0.28} depthWrite={false} fog={false} />
       </mesh>
     </group>
   );
@@ -488,16 +803,23 @@ function SkyDome() {
 // ---------- Shed ----------
 
 function Shed({ active, reduced }: { active: boolean; reduced: boolean }) {
+  const slats = useMemo(
+    () => Array.from({ length: 22 }, (_, i) => ({ x: -3.55 + i * 0.34, tone: i % 2 ? '#8B5A2B' : '#7C4F25' })),
+    [],
+  );
   return (
     <group position={[10, 0, 0]}>
       <mesh position={[0, 0.12, 0]} receiveShadow>
         <boxGeometry args={[7.6, 0.25, 4.4]} />
         <meshStandardMaterial color="#B7AE9C" roughness={0.9} />
       </mesh>
-      <mesh position={[0, 1.4, -1.95]} castShadow>
-        <boxGeometry args={[7.6, 2.4, 0.15]} />
-        <meshStandardMaterial color="#8B5A2B" roughness={0.9} />
-      </mesh>
+      {/* Plank back wall */}
+      {slats.map((s, i) => (
+        <mesh key={i} position={[s.x, 1.4, -1.95]} castShadow>
+          <boxGeometry args={[0.33, 2.4, 0.06]} />
+          <meshStandardMaterial color={s.tone} roughness={0.9} />
+        </mesh>
+      ))}
       {[-3.6, 3.6].flatMap((x) =>
         [-1.95, 1.95].map((z) => (
           <mesh key={`${x}-${z}`} position={[x, 1.6, z]} castShadow>
@@ -506,7 +828,7 @@ function Shed({ active, reduced }: { active: boolean; reduced: boolean }) {
           </mesh>
         )),
       )}
-      {/* Gable roof: two sloping panels meeting at a ridge */}
+      {/* Gable roof: two sloping panels with a ridge cap and front fascia */}
       <mesh position={[0, 3.6, 1.2]} rotation={[0.45, 0, 0]} castShadow>
         <boxGeometry args={[8, 0.14, 2.8]} />
         <meshStandardMaterial color="#A8552B" roughness={0.8} />
@@ -515,6 +837,15 @@ function Shed({ active, reduced }: { active: boolean; reduced: boolean }) {
         <boxGeometry args={[8, 0.14, 2.8]} />
         <meshStandardMaterial color="#A8552B" roughness={0.8} />
       </mesh>
+      <mesh position={[0, 4.0, 0]}>
+        <boxGeometry args={[8.1, 0.12, 0.3]} />
+        <meshStandardMaterial color="#8C4521" roughness={0.8} />
+      </mesh>
+      <mesh position={[0, 3.22, 2.45]}>
+        <boxGeometry args={[8, 0.12, 0.08]} />
+        <meshStandardMaterial color="#6B4A2E" roughness={0.9} />
+      </mesh>
+      {/* Feeding trough and straw bedding */}
       <mesh position={[0, 0.5, 1.9]}>
         <boxGeometry args={[7, 0.4, 0.5]} />
         <meshStandardMaterial color="#9A9A8E" roughness={0.9} />
@@ -523,6 +854,12 @@ function Shed({ active, reduced }: { active: boolean; reduced: boolean }) {
         <boxGeometry args={[6.4, 0.08, 1.3]} />
         <meshStandardMaterial color="#D9B25A" roughness={1} />
       </mesh>
+      {[-2.8, -0.6, 1.8, 3.0].map((x, i) => (
+        <mesh key={x} position={[x, 0.42, 1.0 + (i % 2) * 0.4]} scale={[1, 0.45, 0.8]}>
+          <sphereGeometry args={[0.45, 10, 8]} />
+          <meshStandardMaterial color="#D9B25A" roughness={1} />
+        </mesh>
+      ))}
 
       <Cow position={[-2.6, 0.25, -0.3]} rotation={-Math.PI / 2} body="#C47A3E" spots phase={0} active={active} reduced={reduced} />
       <Cow position={[0.2, 0.25, -0.6]} rotation={-Math.PI / 2} body="#E9E4D8" phase={1.3} active={active} reduced={reduced} />
@@ -546,6 +883,7 @@ export default function Farm({ active, reduced, mobile }: Props) {
       <Hills />
       <Village />
       <Ground />
+      <Grass count={mobile ? 260 : 600} />
       <Garden />
       <Shed active={active} reduced={reduced} />
 
