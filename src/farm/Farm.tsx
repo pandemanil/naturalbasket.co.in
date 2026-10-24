@@ -1,7 +1,7 @@
 import { useLayoutEffect, useMemo, useRef, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { CowModel, GIR_URL, LANDSCAPE_URL, POND_URL, Prop, Safe, WheatField } from './Models';
+import { CowModel, GIR_URL, Safe, WheatField } from './Models';
 
 type Props = { active: boolean; reduced: boolean; mobile: boolean };
 
@@ -925,13 +925,6 @@ export default function Farm({ active, reduced, mobile }: Props) {
       <Flowers count={mobile ? 90 : 220} />
       <Garden />
       <Shed active={active} reduced={reduced} />
-      <Safe fallback={null}>
-        <Prop url={LANDSCAPE_URL} position={[-30, -0.8, -82]} scale={2.4} />
-        {!mobile && <Prop url={LANDSCAPE_URL} position={[44, -0.8, -95]} scale={2.2} />}
-      </Safe>
-      <Safe fallback={null}>
-        <Prop url={POND_URL} position={[-9, 0.04, 15.5]} rotation={0.3} scale={1.5} />
-      </Safe>
       <Safe fallback={null}>
         <WheatField x0={13} x1={21.5} z0={5} z1={14} count={mobile ? 110 : 220} active={active} reduced={reduced} />
       </Safe>

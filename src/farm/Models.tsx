@@ -7,8 +7,6 @@ import * as THREE from 'three';
 export const COW_URL = '/models/cow.glb';
 export const WHEAT_URL = '/models/wheat.glb';
 export const GIR_URL = '/models/gir.glb';
-export const LANDSCAPE_URL = '/models/landscape.glb';
-export const POND_URL = '/models/pond.glb';
 
 // If a model fails to load, show the fallback instead of breaking the whole scene.
 export class ModelBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
@@ -138,39 +136,7 @@ export function WheatField({ x0, x1, z0, z1, count, active, reduced }: WheatProp
   return <instancedMesh ref={ref} args={[mesh.geometry, mesh.material as THREE.Material, count]} frustumCulled={false} />;
 }
 
-type PropProps = {
-  url: string;
-  position: [number, number, number];
-  rotation?: number;
-  scale?: number;
-  shadows?: boolean;
-};
-
-// A static scenery model (distant forest hills, the pond).
-export function Prop({ url, position, rotation = 0, scale = 1, shadows = false }: PropProps) {
-  const { scene } = useGLTF(url);
-  const model = useMemo(() => {
-    const c = scene.clone(true);
-    c.traverse((o) => {
-      if ((o as THREE.Mesh).isMesh) {
-        o.receiveShadow = shadows;
-        o.castShadow = false;
-        const mat = (o as THREE.Mesh).material as THREE.MeshStandardMaterial;
-        mat.fog = true;
-      }
-    });
-    return c;
-  }, [scene, shadows]);
-  return (
-    <group position={position} rotation={[0, rotation, 0]} scale={scale}>
-      <primitive object={model} />
-    </group>
-  );
-}
-
 // Start downloading the models as soon as the farm section loads.
 useGLTF.preload(COW_URL);
 useGLTF.preload(WHEAT_URL);
 useGLTF.preload(GIR_URL);
-useGLTF.preload(LANDSCAPE_URL);
-useGLTF.preload(POND_URL);
