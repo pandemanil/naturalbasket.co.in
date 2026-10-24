@@ -311,3 +311,4 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 @media (min-width: 900px) {
   .farm-poster { grid-template-columns: 1fr 340px; align-items: start; }
 }
+.farm-credit { text-align: center; margin: 4px 0 0; }

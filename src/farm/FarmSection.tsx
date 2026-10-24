@@ -114,6 +114,11 @@ export default function FarmSection() {
             {view === 'milk' && <a className="btn" href="#shop">Shop milk products</a>}
           </div>
           <p className="farm-hint muted">Drag to look around · Scroll or pinch to zoom</p>
+          <p className="farm-credit muted small">
+            3D models: <a href="https://sketchfab.com/3d-models/brown-cow-3d-model-14a5bf64cd93490682e841292b318d1b" target="_blank" rel="noopener noreferrer">Brown Cow</a> by iRahulRajput and{' '}
+            <a href="https://sketchfab.com/3d-models/wheat-8d2edddda3104aab8108dffa1bbab6b2" target="_blank" rel="noopener noreferrer">Wheat</a> by KillTheSaint, via Sketchfab, licensed{' '}
+            <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. Resized for the web.
+          </p>
         </div>
       ) : (
         <>
