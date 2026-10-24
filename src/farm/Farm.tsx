@@ -197,6 +197,33 @@ function Garden() {
 }
 
 // Grass tufts scattered over the meadow, kept off the beds, path and shed.
+function Flowers({ count }: { count: number }) {
+  const items = useMemo(() => {
+    const out: Item[] = [];
+    const tones = ['#F6D743', '#FFFFFF', '#F28BB0', '#F6A33A'];
+    for (let i = 0; i < count; i++) {
+      const x = -16 + rand(i * 4.3 + 1) * 34;
+      const z = 3.5 + rand(i * 6.1 + 2) * 13;
+      if (Math.abs(x + 1) < 1.6) continue;
+      out.push({
+        x, y: 0.28, z,
+        s: 0.8 + rand(i * 2.9) * 0.6,
+        sy: 1,
+        rx: 0, rz: 0, r: 0,
+        color: tones[i % 4],
+      });
+    }
+    return out;
+  }, [count]);
+
+  return (
+    <Instanced items={items} shadows={false}>
+      <sphereGeometry args={[0.13, 8, 6]} />
+      <meshStandardMaterial roughness={0.8} />
+    </Instanced>
+  );
+}
+
 function Grass({ count }: { count: number }) {
   const items = useMemo(() => {
     const out: Item[] = [];
@@ -861,10 +888,10 @@ function Shed({ active, reduced }: { active: boolean; reduced: boolean }) {
         </mesh>
       ))}
 
-      <Cow position={[-2.6, 0.25, -0.3]} rotation={-Math.PI / 2} body="#C47A3E" spots phase={0} active={active} reduced={reduced} />
-      <Cow position={[0.2, 0.25, -0.6]} rotation={-Math.PI / 2} body="#E9E4D8" phase={1.3} active={active} reduced={reduced} />
-      <Cow position={[2.6, 0.25, -0.2]} rotation={-Math.PI / 2} body="#B9825A" spots phase={2.6} active={active} reduced={reduced} />
-      <Cow position={[-0.8, 0.25, 0.7]} rotation={-Math.PI / 2} scale={0.6} body="#C68B52" phase={3.9} active={active} reduced={reduced} />
+      <Cow position={[-2.6, 0.25, -0.3]} rotation={-Math.PI / 2} scale={1.3} body="#C47A3E" spots phase={0} active={active} reduced={reduced} />
+      <Cow position={[0.2, 0.25, -0.6]} rotation={-Math.PI / 2} scale={1.3} body="#E9E4D8" phase={1.3} active={active} reduced={reduced} />
+      <Cow position={[2.6, 0.25, -0.2]} rotation={-Math.PI / 2} scale={1.3} body="#B9825A" spots phase={2.6} active={active} reduced={reduced} />
+      <Cow position={[-0.8, 0.25, 0.7]} rotation={-Math.PI / 2} scale={0.8} body="#C68B52" phase={3.9} active={active} reduced={reduced} />
     </group>
   );
 }
@@ -884,8 +911,13 @@ export default function Farm({ active, reduced, mobile }: Props) {
       <Village />
       <Ground />
       <Grass count={mobile ? 260 : 600} />
+      <Flowers count={mobile ? 90 : 220} />
       <Garden />
       <Shed active={active} reduced={reduced} />
+
+      <Cow position={[-1.5, 0, 9.5]} rotation={0.6} scale={1.3} body="#E9E4D8" phase={0.7} active={active} reduced={reduced} />
+      <Cow position={[7, 0, 11]} rotation={-0.8} scale={1.3} body="#C47A3E" spots phase={2.1} active={active} reduced={reduced} />
+      <Cow position={[9.5, 0, 9.2]} rotation={-0.5} scale={0.8} body="#C68B52" phase={3.3} active={active} reduced={reduced} />
 
       {palms.map((p, i) => (
         <Palm key={i} kind={p.kind} position={p.position} phase={i * 0.9} active={active} reduced={reduced} />
