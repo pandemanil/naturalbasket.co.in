@@ -12,7 +12,7 @@ type Props = { view: FarmView; reduced: boolean; mobile: boolean };
 type Pose = { pos: [number, number, number]; target: [number, number, number] };
 
 export const VIEW_POSES: Record<FarmView, Pose> = {
-  farm: { pos: [0, 13, 30], target: [0, 1.5, 0] },
+  farm: { pos: [3, 8.5, 22], target: [2, 1.2, 2] },
   garden: { pos: [-3, 4.5, 10], target: [-10, 0.6, 0] },
   milk: { pos: [0, 2.6, 7], target: [0, 1.9, 0] },
 };

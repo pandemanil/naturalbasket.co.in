@@ -30,6 +30,60 @@ export default function MilkGlass({ active, reduced, mobile }: Props) {
     logo.anisotropy = 4;
     logo.needsUpdate = true;
   }, [logo]);
+  // Clean white label with the logo on it, so it reads true on the glass.
+  const label = useMemo(() => {
+    const c = document.createElement('canvas');
+    c.width = 512;
+    c.height = 256;
+    const ctx = c.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, 512, 256);
+      const img = logo.image as CanvasImageSource & { width: number; height: number };
+      const k = Math.min(440 / img.width, 210 / img.height);
+      const w = img.width * k;
+      const h = img.height * k;
+      ctx.drawImage(img, (512 - w) / 2, (256 - h) / 2, w, h);
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 4;
+    return t;
+  }, [logo]);
+
+  // Wood grain for the table top.
+  const wood = useMemo(() => {
+    const c = document.createElement('canvas');
+    c.width = 256;
+    c.height = 256;
+    const ctx = c.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = '#9A6A3A';
+      ctx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 70; i++) {
+        const y = rand(i) * 256;
+        ctx.strokeStyle = rand(i + 9) > 0.5 ? 'rgba(80,45,20,0.28)' : 'rgba(210,160,100,0.22)';
+        ctx.lineWidth = 0.6 + rand(i + 3) * 2.2;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.bezierCurveTo(80, y + (rand(i + 5) - 0.5) * 14, 170, y + (rand(i + 6) - 0.5) * 14, 256, y);
+        ctx.stroke();
+      }
+      ctx.strokeStyle = 'rgba(60,35,15,0.5)';
+      ctx.lineWidth = 3;
+      for (const x of [64, 128, 192]) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 256);
+        ctx.stroke();
+      }
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    return t;
+  }, []);
+
   const counts = mobile
     ? { drops: 50, splash: 70, sparkle: 36 }
     : { drops: 110, splash: 150, sparkle: 80 };
@@ -222,7 +276,7 @@ export default function MilkGlass({ active, reduced, mobile }: Props) {
       {/* Wooden table top and burlap mat */}
       <mesh position={[0, -0.12, 0]} receiveShadow>
         <cylinderGeometry args={[2.6, 2.6, 0.24, 56]} />
-        <meshStandardMaterial color="#8B5E34" roughness={0.75} />
+        <meshStandardMaterial map={wood} color="#FFFFFF" roughness={0.7} />
       </mesh>
       <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[1.15, 40]} />
@@ -231,7 +285,7 @@ export default function MilkGlass({ active, reduced, mobile }: Props) {
 
       {/* Milk and its glossy surface */}
       <mesh geometry={milkGeometry} castShadow>
-        <meshStandardMaterial color="#FFFFFF" emissive="#FFF6E6" emissiveIntensity={0.55} roughness={0.3} />
+        <meshStandardMaterial color="#FFFCF2" emissive="#FFF3DC" emissiveIntensity={0.5} roughness={0.3} />
       </mesh>
       <mesh position={[0, LIQUID_TOP + 0.01, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.64, 0.035, 8, 56]} />
@@ -259,36 +313,30 @@ export default function MilkGlass({ active, reduced, mobile }: Props) {
         <torusGeometry args={[0.72, 0.02, 8, 56]} />
         <meshStandardMaterial color="#EAF4EA" transparent opacity={0.55} roughness={0.2} />
       </mesh>
-      {[0.9, -1.1].map((start) => (
-        <mesh key={start} position={[0, 1.7, 0]}>
-          <cylinderGeometry args={[0.725, 0.615, 2.4, 8, 1, true, start, 0.2]} />
-          <meshBasicMaterial color="#FFFFFF" transparent opacity={0.3} blending={THREE.AdditiveBlending} depthWrite={false} />
-        </mesh>
-      ))}
 
       {/* Natural Basket logo printed on the front of the glass */}
       <mesh position={[0, 1.45, 0]}>
-        <cylinderGeometry args={[0.655, 0.655, 0.56, 36, 1, true, -0.62, 1.24]} />
-        <meshStandardMaterial map={logo} roughness={0.45} />
+        <cylinderGeometry args={[0.66, 0.66, 0.6, 36, 1, true, -0.62, 1.24]} />
+        <meshBasicMaterial map={label} toneMapped={false} />
       </mesh>
 
       {/* Milk jug */}
       <group position={[1.94, SPOUT_Y + 0.14, 0]} rotation={[0, 0, 0.95]}>
         <mesh castShadow>
           <cylinderGeometry args={[0.5, 0.55, 1.1, 32]} />
-          <meshStandardMaterial color="#F7F3EA" roughness={0.35} />
+          <meshStandardMaterial color="#C26A3B" roughness={0.55} />
         </mesh>
         <mesh position={[0, 0.58, 0]}>
           <torusGeometry args={[0.5, 0.04, 8, 32]} />
-          <meshStandardMaterial color="#F7F3EA" roughness={0.35} />
+          <meshStandardMaterial color="#C26A3B" roughness={0.55} />
         </mesh>
         <mesh position={[-0.52, 0.52, 0]} rotation={[0, 0, 0.6]}>
           <coneGeometry args={[0.16, 0.3, 16]} />
-          <meshStandardMaterial color="#F7F3EA" roughness={0.35} />
+          <meshStandardMaterial color="#C26A3B" roughness={0.55} />
         </mesh>
         <mesh position={[0.62, 0, 0]}>
           <torusGeometry args={[0.28, 0.05, 8, 20, Math.PI]} />
-          <meshStandardMaterial color="#F7F3EA" roughness={0.35} />
+          <meshStandardMaterial color="#C26A3B" roughness={0.55} />
         </mesh>
       </group>
 

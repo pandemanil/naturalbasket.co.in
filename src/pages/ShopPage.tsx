@@ -51,7 +51,7 @@ export default function ShopPage() {
           <span className="float f5">🧺</span><span className="float f6">🫒</span>
         </div>
         <div className="hero-copy">
-          <p className="eyebrow">Farm-to-home · Hyderabad</p>
+          <p className="eyebrow">Farm-to-home</p>
           <h1 id="hero-title">Nature's Goodness. Delivered.</h1>
           <p>Farm-fresh vegetables, traditional snacks, natural milk products, cold-pressed oils and premium spices.</p>
           <a className="btn primary" href="#shop">Shop fresh items</a>
