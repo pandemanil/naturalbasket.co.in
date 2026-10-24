@@ -1,4 +1,4 @@
-import { Component, lazy, Suspense, useState, type ReactNode } from 'react';
+import { Component, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { FarmView } from './types';
 
 // three.js and react-three-fiber load only when this section is shown.
@@ -69,20 +69,51 @@ function FarmPoster() {
 
 export default function FarmSection() {
   const [view, setView] = useState<FarmView>('farm');
+  const [threeD, setThreeD] = useState(false);
   const [webgl] = useState(supportsWebGL);
   const [reduced] = useState(prefersReducedMotion);
   const [small] = useState(isSmallScreen);
+  const video = useRef<HTMLVideoElement>(null);
+
+  // Restart the clip when the view changes; keep the vegetables view on its first few seconds.
+  useEffect(() => {
+    const v = video.current;
+    if (!v) return;
+    try {
+      v.currentTime = 0;
+      if (!reduced) void v.play().catch(() => undefined);
+    } catch {
+      // autoplay can be blocked; the poster stays visible
+    }
+  }, [view, threeD, reduced]);
+
+  // Save battery: pause the clip while it is off screen.
+  useEffect(() => {
+    const v = video.current;
+    if (!v || reduced || typeof IntersectionObserver === 'undefined') return undefined;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) void v.play().catch(() => undefined);
+      else v.pause();
+    });
+    io.observe(v);
+    return () => io.disconnect();
+  }, [threeD, view, reduced]);
+
+  const onTime = () => {
+    const v = video.current;
+    if (v && view === 'garden' && v.currentTime > 4.5) v.currentTime = 0;
+  };
 
   return (
     <section className="farm" aria-labelledby="farm-title">
       <div className="farm-head">
         <p className="eyebrow">Natural Basket · Farm tour</p>
-        <h2 id="farm-title">Farming in Front of Your Eyes</h2>
+        <h2 id="farm-title">Farming in Front of <em>Your Eyes</em></h2>
         <p className="muted">Nature's Goodness. Delivered.</p>
       </div>
 
-      {webgl ? (
-        <div className="farm-stage">
+      <div className="farm-stage">
+        {threeD && webgl ? (
           <div className="farm-canvas-wrap" role="region" aria-label="Interactive 3D farm view">
             <SceneBoundary fallback={<FarmPoster />}>
               <Suspense
@@ -97,35 +128,55 @@ export default function FarmSection() {
               </Suspense>
             </SceneBoundary>
           </div>
-
-          <div className="farm-controls" role="group" aria-label="Choose where to explore">
-            {VIEWS.map((v) => (
-              <button
-                key={v.id}
-                type="button"
-                className={view === v.id ? 'btn primary' : 'btn'}
-                aria-pressed={view === v.id}
-                onClick={() => setView(v.id)}
-              >
-                {v.label}
-              </button>
-            ))}
-            {view === 'garden' && <a className="btn" href="#shop">Shop vegetables</a>}
-            {view === 'milk' && <a className="btn" href="#shop">Shop milk products</a>}
+        ) : view === 'milk' ? (
+          <div className="farm-media farm-milk">
+            <img src="/images/milk-poster.webp" alt="Fresh milk pouring into a glass with the Natural Basket logo" width={900} height={1350} decoding="async" />
+            <span className="drop d1" aria-hidden="true" /><span className="drop d2" aria-hidden="true" /><span className="drop d3" aria-hidden="true" />
           </div>
-          <p className="farm-hint muted">Drag to look around · Scroll or pinch to zoom</p>
-          <p className="farm-credit muted small">
-            3D models: <a href="https://sketchfab.com/3d-models/brown-cow-3d-model-14a5bf64cd93490682e841292b318d1b" target="_blank" rel="noopener noreferrer">Brown Cow</a> by iRahulRajput and{' '}
-            <a href="https://sketchfab.com/3d-models/wheat-8d2edddda3104aab8108dffa1bbab6b2" target="_blank" rel="noopener noreferrer">Wheat</a> by KillTheSaint, via Sketchfab, licensed{' '}
-            <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. Resized for the web.
-          </p>
+        ) : (
+          <div className={view === 'garden' ? 'farm-media zoom' : 'farm-media'}>
+            <video
+              ref={video}
+              src="/video/farm.mp4"
+              poster="/video/farm-poster.webp"
+              muted
+              loop
+              playsInline
+              autoPlay={!reduced}
+              controls={reduced}
+              preload="metadata"
+              onTimeUpdate={onTime}
+              aria-label="Video of the Natural Basket farm: vegetable rows, Gir cows in a shed and free-range hens"
+            />
+            <div className="farm-media-fade" aria-hidden="true" />
+          </div>
+        )}
+
+        <div className="farm-controls" role="group" aria-label="Choose where to explore">
+          {VIEWS.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              className={view === v.id ? 'btn primary' : 'btn'}
+              aria-pressed={view === v.id}
+              onClick={() => setView(v.id)}
+            >
+              {v.label}
+            </button>
+          ))}
+          {view === 'garden' && <a className="btn" href="#shop">Shop vegetables</a>}
+          {view === 'milk' && <a className="btn" href="#shop">Shop milk products</a>}
         </div>
-      ) : (
-        <>
-          <FarmPoster />
-          <p className="muted">Your browser cannot show the 3D farm. Here is a picture of it instead.</p>
-        </>
-      )}
+        {webgl && (
+          <p className="farm-hint muted">
+            <button type="button" className="link-btn" onClick={() => setThreeD((t) => !t)} aria-pressed={threeD}>
+              {threeD ? 'Back to the real farm video' : 'View as interactive 3D'}
+            </button>
+            {threeD && ' · Drag to look around, scroll or pinch to zoom'}
+          </p>
+        )}
+        {!webgl && threeD && <FarmPoster />}
+      </div>
     </section>
   );
 }

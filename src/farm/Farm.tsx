@@ -1,7 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { CowModel, GIR_URL, Safe, WheatField } from './Models';
 
 type Props = { active: boolean; reduced: boolean; mobile: boolean };
 
@@ -276,16 +275,6 @@ type CowProps = {
 };
 
 // Gir-style cow: shoulder hump, bulging forehead, long drooping ears, dewlap.
-// variant 'gir' is the humped, untextured Gir model tinted with the cow's body colour.
-function RealCow(props: CowProps & { variant?: 'brown' | 'gir' }) {
-  const { body, patch: _p, spots: _s, variant = 'brown', ...rest } = props;
-  return (
-    <Safe fallback={<Cow {...props} />}>
-      {variant === 'gir' ? <CowModel {...rest} url={GIR_URL} tint={body} /> : <CowModel {...rest} />}
-    </Safe>
-  );
-}
-
 function Cow({ position, rotation = 0, scale = 1, body = '#B9825A', patch = '#F3EEE2', spots = false, phase, active, reduced }: CowProps) {
   const head = useRef<THREE.Group>(null);
   const tail = useRef<THREE.Group>(null);
@@ -899,10 +888,10 @@ function Shed({ active, reduced }: { active: boolean; reduced: boolean }) {
         </mesh>
       ))}
 
-      <RealCow position={[-2.6, 0.25, -0.3]} rotation={-Math.PI / 2} scale={1.3} body="#C47A3E" spots phase={0} active={active} reduced={reduced} />
-      <RealCow variant="gir" position={[0.2, 0.25, -0.6]} rotation={-Math.PI / 2} scale={1.3} body="#E3D2BA" phase={1.3} active={active} reduced={reduced} />
-      <RealCow position={[2.6, 0.25, -0.2]} rotation={-Math.PI / 2} scale={1.3} body="#B9825A" spots phase={2.6} active={active} reduced={reduced} />
-      <RealCow position={[-0.8, 0.25, 0.7]} rotation={-Math.PI / 2} scale={0.8} body="#C68B52" phase={3.9} active={active} reduced={reduced} />
+      <Cow position={[-2.6, 0.25, -0.3]} rotation={-Math.PI / 2} scale={1.3} body="#C47A3E" spots phase={0} active={active} reduced={reduced} />
+      <Cow position={[0.2, 0.25, -0.6]} rotation={-Math.PI / 2} scale={1.3} body="#E9E4D8" phase={1.3} active={active} reduced={reduced} />
+      <Cow position={[2.6, 0.25, -0.2]} rotation={-Math.PI / 2} scale={1.3} body="#B9825A" spots phase={2.6} active={active} reduced={reduced} />
+      <Cow position={[-0.8, 0.25, 0.7]} rotation={-Math.PI / 2} scale={0.8} body="#C68B52" phase={3.9} active={active} reduced={reduced} />
     </group>
   );
 }
@@ -925,13 +914,10 @@ export default function Farm({ active, reduced, mobile }: Props) {
       <Flowers count={mobile ? 90 : 220} />
       <Garden />
       <Shed active={active} reduced={reduced} />
-      <Safe fallback={null}>
-        <WheatField x0={13} x1={21.5} z0={5} z1={14} count={mobile ? 110 : 220} active={active} reduced={reduced} />
-      </Safe>
 
-      <RealCow variant="gir" position={[-1.5, 0, 9.5]} rotation={0.6} scale={1.3} body="#D2A67C" phase={0.7} active={active} reduced={reduced} />
-      <RealCow position={[7, 0, 11]} rotation={-0.8} scale={1.3} body="#C47A3E" spots phase={2.1} active={active} reduced={reduced} />
-      <RealCow position={[9.5, 0, 9.2]} rotation={-0.5} scale={0.8} body="#C68B52" phase={3.3} active={active} reduced={reduced} />
+      <Cow position={[-1.5, 0, 9.5]} rotation={0.6} scale={1.3} body="#E9E4D8" phase={0.7} active={active} reduced={reduced} />
+      <Cow position={[7, 0, 11]} rotation={-0.8} scale={1.3} body="#C47A3E" spots phase={2.1} active={active} reduced={reduced} />
+      <Cow position={[9.5, 0, 9.2]} rotation={-0.5} scale={0.8} body="#C68B52" phase={3.3} active={active} reduced={reduced} />
 
       {palms.map((p, i) => (
         <Palm key={i} kind={p.kind} position={p.position} phase={i * 0.9} active={active} reduced={reduced} />

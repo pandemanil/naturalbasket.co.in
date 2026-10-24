@@ -1,6 +1,8 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useCart } from '../lib/cart';
 
+const WHATSAPP = 'https://wa.me/917993251579?text=Hi%20Natural%20Basket%2C%20I%20would%20like%20to%20order';
+
 export default function Header() {
   const { count } = useCart();
   return (
@@ -14,6 +16,7 @@ export default function Header() {
         <NavLink to="/" end>Shop</NavLink>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
+        <a className="nav-cta" href={WHATSAPP} target="_blank" rel="noopener noreferrer">WhatsApp</a>
         <NavLink to="/basket" className="basket-link">
           Basket <span className="badge-count" aria-label={`${count} items in basket`}>{count}</span>
         </NavLink>
