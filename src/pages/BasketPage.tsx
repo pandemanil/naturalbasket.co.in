@@ -4,6 +4,7 @@ import { api, ApiError, type PublicProduct } from '../lib/api';
 import { useCart } from '../lib/cart';
 import { formatPaise } from '../lib/money';
 import ProductImage from '../components/ProductImage';
+import { usePageMeta } from '../lib/seo';
 
 interface StoreSettings { delivery_charge_paise: number; min_order_paise: number; store_open: boolean }
 interface PlacedOrder {
@@ -16,6 +17,7 @@ const emptyForm = { customer_name: '', mobile: '', address: '', city: 'Hyderabad
 
 export default function BasketPage() {
   const { lines, setQty, remove, clear } = useCart();
+  usePageMeta({ title: 'Your basket | Natural Basket', description: 'Review your Natural Basket order and send it on WhatsApp.', path: '/basket', noindex: true });
   const [catalogue, setCatalogue] = useState<PublicProduct[] | null>(null);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
   const [loadError, setLoadError] = useState('');
