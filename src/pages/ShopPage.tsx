@@ -5,6 +5,7 @@ import { useCart } from '../lib/cart';
 import { formatPaise } from '../lib/money';
 import ProductImage from '../components/ProductImage';
 import Story from '../components/Story';
+import { usePageMeta, useProductSchema } from '../lib/seo';
 
 // The 3D farm (three.js) loads only on the home page, in its own chunk.
 const FarmSection = lazy(() => import('../farm/FarmSection'));
@@ -21,6 +22,12 @@ export default function ShopPage() {
   const [inStockOnly, setInStockOnly] = useState(false);
   const { add, lines } = useCart();
   const { hash } = useLocation();
+  usePageMeta({
+    title: "Natural Basket | Farm-fresh Vegetables, A2 Milk and Natural Foods in Hyderabad",
+    description: 'Chemical-free vegetables, A2 desi cow milk, traditional snacks, cold-pressed oils and premium spices from local farms, delivered to your home in Hyderabad. Order on WhatsApp.',
+    path: '/',
+  });
+  useProductSchema(products);
 
   // Arriving from another page with #shop: scroll to the products once the page is laid out.
   useEffect(() => {

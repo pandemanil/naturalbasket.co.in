@@ -25,8 +25,14 @@ const SECURITY_HEADERS: Record<string, string> = {
 function withSecurityHeaders(response: Response, pathname: string): Response {
   const headers = new Headers(response.headers);
   for (const [name, value] of Object.entries(SECURITY_HEADERS)) headers.set(name, value);
-  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+  if (pathname === '/admin' || pathname.startsWith('/admin/') || pathname.startsWith('/api/')) {
     headers.set('x-robots-tag', 'noindex, nofollow');
+  }
+  // Built files have hashed names, so browsers and CDNs can keep them for a year.
+  if (pathname.startsWith('/assets/')) {
+    headers.set('cache-control', 'public, max-age=31536000, immutable');
+  } else if (pathname.startsWith('/images/') || pathname.startsWith('/video/')) {
+    headers.set('cache-control', 'public, max-age=604800');
   }
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
