@@ -417,3 +417,6 @@ em { font-family: var(--serif); font-style: italic; font-weight: 600; }
   .hero-art img, .farm-milk img, .story-scene .van, .farm-milk .drop { animation: none; }
   .story-scene .scene-layer, .story-step { transition: none; }
 }
+
+/* Anchors land below the sticky header */
+#shop, #farm-title, #about, #contact, .farm { scroll-margin-top: 84px; }
