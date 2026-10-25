@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { api, type Category, type PublicProduct } from '../lib/api';
 import { useCart } from '../lib/cart';
 import { formatPaise } from '../lib/money';
@@ -19,6 +20,14 @@ export default function ShopPage() {
   const [sort, setSort] = useState<Sort>('featured');
   const [inStockOnly, setInStockOnly] = useState(false);
   const { add, lines } = useCart();
+  const { hash } = useLocation();
+
+  // Arriving from another page with #shop: scroll to the products once the page is laid out.
+  useEffect(() => {
+    if (hash !== '#shop') return undefined;
+    const t = window.setTimeout(() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 250);
+    return () => window.clearTimeout(t);
+  }, [hash]);
 
   useEffect(() => {
     Promise.all([api<{ products: PublicProduct[] }>('/products'), api<{ categories: Category[] }>('/categories')])
