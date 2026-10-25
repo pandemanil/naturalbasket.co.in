@@ -3,6 +3,7 @@ import { api, type Category, type PublicProduct } from '../lib/api';
 import { useCart } from '../lib/cart';
 import { formatPaise } from '../lib/money';
 import ProductImage from '../components/ProductImage';
+import Story from '../components/Story';
 
 // The 3D farm (three.js) loads only on the home page, in its own chunk.
 const FarmSection = lazy(() => import('../farm/FarmSection'));
@@ -45,22 +46,33 @@ export default function ShopPage() {
   return (
     <>
       <section className="hero" aria-labelledby="hero-title">
-        <div className="hero-floaters" aria-hidden="true">
-          <span className="float f1">🥕</span><span className="float f2">🍅</span>
-          <span className="float f3">🥛</span><span className="float f4">🌿</span>
-          <span className="float f5">🧺</span><span className="float f6">🫒</span>
-        </div>
-        <div className="hero-copy">
-          <p className="eyebrow">Farm-to-home</p>
-          <h1 id="hero-title">Nature's Goodness. Delivered.</h1>
-          <p>Farm-fresh vegetables, traditional snacks, natural milk products, cold-pressed oils and premium spices.</p>
-          <a className="btn primary" href="#shop">Shop fresh items</a>
+        <div className="hero-glow" aria-hidden="true" />
+        <div className="hero-inner">
+          <div className="hero-copy">
+            <p className="eyebrow">Farm-to-home</p>
+            <h1 id="hero-title">
+              Nature's <em>Goodness.</em> <span>Delivered.</span>
+            </h1>
+            <p className="hero-sub">Farm-fresh vegetables, traditional snacks, natural milk products, cold-pressed oils and premium spices.</p>
+            <div className="hero-actions">
+              <a className="btn gold" href="#shop">Shop fresh items</a>
+              <a className="btn ghost" href="#farm-title">See the farm</a>
+            </div>
+            <ul className="hero-badges" aria-label="Why Natural Basket">
+              <li>100% natural</li><li>Chemical-free</li><li>Farm fresh</li>
+            </ul>
+          </div>
+          <figure className="hero-art">
+            <img src="/images/milk-poster.webp" alt="Fresh milk splashing into a glass marked with the Natural Basket logo" width={900} height={1350} decoding="async" />
+          </figure>
         </div>
       </section>
 
       <Suspense fallback={<div className="farm-placeholder" aria-hidden="true" />}>
         <FarmSection />
       </Suspense>
+
+      <Story />
 
       <section id="shop" className="shop" aria-labelledby="shop-title">
         <h2 id="shop-title">Shop</h2>

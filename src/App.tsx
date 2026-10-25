@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { CartProvider } from './lib/cart';
 import Header from './components/Header';
+import Splash from './components/Splash';
 import Footer from './components/Footer';
 import ShopPage from './pages/ShopPage';
 import BasketPage from './pages/BasketPage';
@@ -18,6 +19,7 @@ export default function App() {
           path="*"
           element={
             <div className="site">
+              <Splash />
               <Header />
               <main id="main">
                 <Routes>
