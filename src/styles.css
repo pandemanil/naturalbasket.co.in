@@ -420,3 +420,5 @@ em { font-family: var(--serif); font-style: italic; font-weight: 600; }
 
 /* Anchors land below the sticky header */
 #shop, #farm-title, #about, #contact, .farm { scroll-margin-top: 84px; }
+
+.farm-credit { text-align: center; margin: 4px 0 0; }
