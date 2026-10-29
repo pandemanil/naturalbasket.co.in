@@ -427,3 +427,8 @@ em { font-family: var(--serif); font-style: italic; font-weight: 600; }
 @media (min-width: 860px) {
   .story-step { min-height: 30vh; justify-content: flex-start; }
 }
+
+/* Story step cards: fixed comfortable height (vh is huge in desktop-site mode on phones) */
+@media (min-width: 860px) {
+  .story-step { min-height: clamp(170px, 26vh, 280px); }
+}
