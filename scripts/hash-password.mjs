@@ -7,7 +7,9 @@ if (!password || password.length < 12) {
   console.error('Usage: npm run hash-password -- "<password of at least 12 characters>"');
   process.exit(1);
 }
-const iterations = 210000;
+// Cloudflare Workers' Web Crypto supports at most 100,000 PBKDF2 iterations.
+// A higher count makes login fail with a server error, so do not raise this.
+const iterations = 100000;
 const salt = webcrypto.getRandomValues(new Uint8Array(16));
 const key = await webcrypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
 const bits = await webcrypto.subtle.deriveBits(
