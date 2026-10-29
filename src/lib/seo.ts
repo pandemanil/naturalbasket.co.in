@@ -53,6 +53,8 @@ export function useProductSchema(products: { name: string; description: string; 
     el.id = 'ld-products';
     el.text = JSON.stringify(data);
     document.head.appendChild(el);
-    return () => el.remove();
+    return () => {
+      el.remove();
+    };
   }, [products]);
 }
