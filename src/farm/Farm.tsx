@@ -219,7 +219,7 @@ function Flowers({ count }: { count: number }) {
 
   return (
     <Instanced items={items} shadows={false}>
-      <sphereGeometry args={[0.13, 8, 6]} />
+      <sphereGeometry args={[0.06, 8, 6]} />
       <meshStandardMaterial roughness={0.8} />
     </Instanced>
   );
@@ -906,7 +906,7 @@ function Shed({ active, reduced }: { active: boolean; reduced: boolean }) {
       ))}
 
       <RealCow position={[-2.6, 0.25, -0.3]} rotation={-Math.PI / 2} scale={1.3} body="#C47A3E" spots phase={0} active={active} reduced={reduced} />
-      <RealCow variant="gir" position={[0.2, 0.25, -0.6]} rotation={-Math.PI / 2} scale={1.3} body="#E3D2BA" phase={1.3} active={active} reduced={reduced} />
+      <RealCow position={[0.2, 0.25, -0.6]} rotation={-Math.PI / 2} scale={1.3} body="#E3D2BA" phase={1.3} active={active} reduced={reduced} />
       <RealCow position={[2.6, 0.25, -0.2]} rotation={-Math.PI / 2} scale={1.3} body="#B9825A" spots phase={2.6} active={active} reduced={reduced} />
       <RealCow position={[-0.8, 0.25, 0.7]} rotation={-Math.PI / 2} scale={0.8} body="#C68B52" phase={3.9} active={active} reduced={reduced} />
     </group>
@@ -935,9 +935,9 @@ export default function Farm({ active, reduced, mobile }: Props) {
         <WheatField x0={13} x1={21.5} z0={5} z1={14} count={mobile ? 110 : 220} active={active} reduced={reduced} />
       </Safe>
 
-      <RealCow variant="gir" position={[-1.5, 0, 9.5]} rotation={0.6} scale={1.3} body="#D2A67C" phase={0.7} active={active} reduced={reduced} />
-      <RealCow position={[7, 0, 11]} rotation={-0.8} scale={1.3} body="#C47A3E" spots phase={2.1} active={active} reduced={reduced} />
-      <RealCow position={[9.5, 0, 9.2]} rotation={-0.5} scale={0.8} body="#C68B52" phase={3.3} active={active} reduced={reduced} />
+      <RealCow position={[9.5, 0, 6.5]} rotation={-0.6} scale={1.0} body="#D2A67C" phase={0.7} active={active} reduced={reduced} />
+      <RealCow position={[6.5, 0, 12]} rotation={-1.1} scale={0.9} body="#C47A3E" spots phase={2.1} active={active} reduced={reduced} />
+      <RealCow position={[11.5, 0, 9.5]} rotation={-0.9} scale={0.7} body="#C68B52" phase={3.3} active={active} reduced={reduced} />
 
       {palms.map((p, i) => (
         <Palm key={i} kind={p.kind} position={p.position} phase={i * 0.9} active={active} reduced={reduced} />
