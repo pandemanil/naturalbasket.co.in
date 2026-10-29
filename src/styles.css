@@ -422,3 +422,8 @@ em { font-family: var(--serif); font-style: italic; font-weight: 600; }
 #shop, #farm-title, #about, #contact, .farm { scroll-margin-top: 84px; }
 
 .farm-credit { text-align: center; margin: 4px 0 0; }
+
+/* Story steps: top-aligned, shorter cards so text is never far below the picture */
+@media (min-width: 860px) {
+  .story-step { min-height: 30vh; justify-content: flex-start; }
+}
